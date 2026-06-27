@@ -97,7 +97,7 @@
   }
 
   /* Role cards */
-  .roles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; max-width: 300px; margin-left: auto; margin-right: auto; }
   .role-card {
     display: flex; flex-direction: column; align-items: center;
     gap: 8px; padding: 14px 10px;
@@ -116,7 +116,6 @@
   }
   .role-card.admin .icon  { background: var(--blue-light); }
   .role-card.guru .icon   { background: var(--gold-light); }
-  .role-card.ortu .icon   { background: #dcfce7; }
   .role-card .label { font-size: 12px; font-weight: 600; color: var(--navy); }
   .role-card .sublabel { font-size: 10px; color: var(--muted); }
 
@@ -235,11 +234,9 @@
         <div class="label">Guru</div>
         <div class="sublabel">Portal Guru</div>
       </div>
-      <div class="role-card ortu" onclick="selectRole('ortu')">
-        <div class="icon">👨‍👩‍👧</div>
-        <div class="label">Orang Tua</div>
-        <div class="sublabel">Portal Ortu</div>
-      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:1.25rem;">
+      🔗 Portal orang tua diakses via link unik yang dikirim admin
     </div>
 
     <!-- PIN section -->
@@ -291,11 +288,6 @@ function selectRole(role) {
     lbl.placeholder = 'Email atau nama guru...';
     label.textContent = 'PIN Guru';
     btn.className = 'btn-login gold';
-  } else if (role === 'ortu') {
-    extra.classList.add('show');
-    lbl.placeholder = 'Nama murid...';
-    label.textContent = 'PIN Orang Tua';
-    btn.className = 'btn-login green';
   } else {
     extra.classList.remove('show');
     label.textContent = 'PIN Admin';
@@ -350,17 +342,6 @@ async function doLogin() {
       } else {
         showErr('Identitas atau PIN guru tidak cocok');
       }
-    } else if (selectedRole === 'ortu') {
-      if (!extra) { showErr('Masukkan nama murid'); btn.textContent='Masuk'; btn.disabled=false; return; }
-      const murid = await checkOrtu(extra, pin);
-      if (murid) {
-        sessionStorage.setItem('cms_role', 'ortu');
-        sessionStorage.setItem('cms_murid_id', murid.id);
-        sessionStorage.setItem('cms_murid_nama', murid.nama);
-        window.location.href = 'ortu.html';
-      } else {
-        showErr('Nama murid atau PIN orang tua tidak cocok');
-      }
     }
   } catch(e) {
     showErr('Gagal terhubung. Cek koneksi atau konfigurasi API.');
@@ -400,18 +381,6 @@ async function checkGuru(query, pin) {
   return d.guru || null;
 }
 
-async function checkOrtu(namaMurid, pin) {
-  if (!API_URL) {
-    const list = JSON.parse(localStorage.getItem('cms_murid') || '[]');
-    return list.find(m =>
-      m.nama?.toLowerCase().includes(namaMurid.toLowerCase()) &&
-      m.ortu_pin === pin
-    ) || null;
-  }
-  const r = await fetch(API_URL + `?action=check_ortu&nama_murid=${encodeURIComponent(namaMurid)}&pin=${encodeURIComponent(pin)}`);
-  const d = await r.json();
-  return d.murid || null;
-}
 </script>
 </body>
 </html>

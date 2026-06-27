@@ -558,10 +558,10 @@ tr:hover td{background:#fafbff;}
         </select>
       </div>
     </div>
-    <div class="field" style="margin-top:10px;">
-      <label class="lbl">PIN Orang Tua (untuk login portal ortu)</label>
-      <input id="mOrtuPin" type="password" placeholder="Min 4 digit angka">
+    <div id="mLinkInfo" style="display:none;margin-top:10px;background:var(--blue-bg);border:1px solid var(--blue-light);border-radius:10px;padding:11px 14px;font-size:12px;color:var(--blue);">
+      🔗 Link portal ortu akan tersedia setelah disimpan. Gunakan tombol <b>🔗 Link</b> atau <b>📲 WA</b> di tabel murid untuk membagikannya.
     </div>
+    <input type="hidden" id="mOrtuPin">
     <div style="display:flex;gap:10px;margin-top:1.25rem;">
       <button class="btn btn-primary" onclick="saveMurid()" style="flex:1;">Simpan</button>
       <button class="btn btn-ghost" onclick="closeModal('muridOverlay')" style="flex:1;">Batal</button>
@@ -991,9 +991,33 @@ async function loadMurid(){
   allGuru  = rG.data||[];
   renderMurid();
 }
+function getBaseUrl(){
+  return window.location.href.replace('admin.html','').replace(/\/$/, '');
+}
+function getOrtuLink(m){
+  if(!m.token) return null;
+  return `${getBaseUrl()}/ortu.html?mid=${m.id}&t=${m.token}`;
+}
+function salinLink(muridId){
+  const m = allMurid.find(x=>x.id===muridId);
+  if(!m){ showToast('Murid tidak ditemukan','error'); return; }
+  if(!m.token){ showToast('Token belum ada, simpan ulang data murid dulu','error'); return; }
+  const link = getOrtuLink(m);
+  navigator.clipboard.writeText(link).then(()=>{
+    showToast('Link portal ortu tersalin! ✓','success');
+  }).catch(()=>{
+    prompt('Copy link ini:', link);
+  });
+}
+function kirimWALink(muridId){
+  const m = allMurid.find(x=>x.id===muridId);
+  if(!m||!m.token){ showToast('Token belum ada','error'); return; }
+  const link = getOrtuLink(m);
+  const msg = `Halo, ini adalah link portal orang tua untuk *${m.nama}* di Clarin Music Studio 🎹\n\nKlik link berikut untuk melihat jadwal, laporan, dan tagihan:\n${link}\n\nLink ini khusus untuk ${m.nama}. Mohon tidak dibagikan ke orang lain. Terima kasih!`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
 function renderMurid(){
   const pakets = JSON.parse(localStorage.getItem('cms_paket')||'[]');
-  const sesis  = JSON.parse(localStorage.getItem('cms_sesi')||'[]');
   const tbody = document.getElementById('muridTbody');
   if(allMurid.length===0){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada murid</td></tr>'; return; }
   tbody.innerHTML = allMurid.map(m=>{
@@ -1014,6 +1038,8 @@ function renderMurid(){
       <td>${m.instagram||'—'}</td>
       <td><div class="td-actions">
         <button class="btn btn-ghost btn-xs" onclick="openMuridModal('${m.id}')">Edit</button>
+        <button class="btn btn-primary btn-xs" onclick="salinLink('${m.id}')" title="Salin link portal ortu">🔗 Link</button>
+        <button class="btn btn-green btn-xs" onclick="kirimWALink('${m.id}')" title="Kirim link via WhatsApp" style="background:#25D366;">📲 WA</button>
         <button class="btn btn-danger btn-xs" onclick="deleteMurid('${m.id}')">Hapus</button>
       </div></td>
     </tr>`;
@@ -1035,18 +1061,23 @@ function openMuridModal(id){
       document.getElementById('mIg').value      = m.instagram||'';
       document.getElementById('mGuru').value    = m.guru_id||'';
       document.getElementById('mKelas').value   = m.kelas||'';
-      document.getElementById('mOrtuPin').value = m.ortu_pin||'';
+      document.getElementById('mLinkInfo').style.display = m.token ? 'block' : 'none';
     }
   } else {
-    ['mNama','mTglLahir','mAlamat','mEmail','mIg','mOrtuPin'].forEach(id=>document.getElementById(id).value='');
+    ['mNama','mTglLahir','mAlamat','mEmail','mIg'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('mGuru').value=''; document.getElementById('mKelas').value='';
+    document.getElementById('mLinkInfo').style.display='none';
   }
   openModal('muridOverlay');
 }
+function genToken(){ return Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10); }
 async function saveMurid(){
   const id   = document.getElementById('muridId').value;
   const nama = document.getElementById('mNama').value.trim();
   if(!nama){ showToast('Nama murid wajib diisi','error'); return; }
+  // Pertahankan token lama jika sudah ada, buat baru jika belum
+  const existing = allMurid.find(m=>m.id===id);
+  const token = existing?.token || genToken();
   const body = {
     action:'save_murid', id:id||undefined,
     nama, tgl_lahir:document.getElementById('mTglLahir').value,
@@ -1056,6 +1087,7 @@ async function saveMurid(){
     guru_id:document.getElementById('mGuru').value,
     kelas:document.getElementById('mKelas').value,
     ortu_pin:document.getElementById('mOrtuPin').value,
+    token,
   };
   await apiPost(body);
   closeModal('muridOverlay');
@@ -1344,8 +1376,38 @@ function renderTagihan(){
         ${t.status==='dibayar'?`<button class="btn btn-green btn-xs" onclick="openKonfirmasi('${t.id}')">✅ Konfirmasi Lunas</button>`:''}
         ${t.status==='menunggu'?'<span style="font-size:11px;color:var(--muted);">Menunggu pembayaran dari orang tua</span>':''}
         ${t.status==='dikonfirmasi'?'<span style="font-size:11px;color:var(--green-med);">✅ Paket aktif</span>':''}
+        <button class="btn btn-xs" onclick="kirimWATagihan('${t.id}')" style="background:#25D366;color:#fff;border:none;">📲 Kirim WA Tagihan</button>
       </div>
     </div>`).join('');
+}
+function kirimWATagihan(tagihanId){
+  const t = allTagihan.find(x=>x.id===tagihanId);
+  if(!t){ showToast('Tagihan tidak ditemukan','error'); return; }
+  const murid = allMurid.find(m=>m.id===t.murid_id);
+  const namaM = murid?.nama || '—';
+  const jenis = t.jenis_paket==='8'?'Paket 8 Sesi (+1 sesi gratis 🎁)':t.jenis_paket==='4'?'Paket 4 Sesi':'Paket Custom '+t.total_sesi+' Sesi';
+  const nominal = 'Rp '+Number(t.nominal||0).toLocaleString('id-ID');
+  const baseUrl = window.location.href.replace('admin.html','').replace(/\/$/,'');
+  const portalLink = murid?.token ? `${baseUrl}/ortu.html?mid=${murid.id}&t=${murid.token}` : '(link portal belum tersedia)';
+
+  const msg =
+`Halo Bapak/Ibu orang tua *${namaM}* 🎹
+
+Berikut tagihan les *Clarin Music Studio*:
+
+📦 *${jenis}*
+💰 Nominal: *${nominal}*
+📅 Tanggal tagihan: ${t.tgl_tagihan||'—'}
+${t.catatan?'📝 Catatan: '+t.catatan+'\n':''}
+Mohon melakukan pembayaran dan konfirmasi melalui portal orang tua:
+👉 ${portalLink}
+
+Setelah pembayaran dikonfirmasi, jadwal les ${namaM} akan aktif kembali.
+
+Terima kasih atas kepercayaannya 🙏
+*Clarin Music Studio*`;
+
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
 }
 function updateNominal(){
   const paket = document.getElementById('tagihanPaket').value;
