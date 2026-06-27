@@ -176,6 +176,17 @@ tr:hover td{background:#fafbff;}
 .tg-ev.admblok .et{color:var(--red-med);font-size:9px;}
 .tg-nowline{position:absolute;left:0;right:0;height:2px;background:var(--red-med);z-index:5;pointer-events:none;}
 .tg-nowline::before{content:'';position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--red-med);}
+/* Event popup */
+.ev-popup{position:fixed;background:#fff;border:1px solid var(--border);border-radius:11px;padding:12px 14px;box-shadow:0 6px 24px rgba(30,58,138,.16);z-index:999;min-width:190px;max-width:240px;display:none;}
+.ev-popup-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.ev-popup-kelas{font-size:11px;color:var(--blue-med);font-weight:600;margin-bottom:1px;}
+.ev-popup-time{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.ev-popup-btns{display:flex;gap:6px;}
+.ev-popup-btns button{flex:1;padding:7px 10px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:.12s;}
+.ev-popup-edit{background:var(--blue-bg);color:var(--blue-med);}
+.ev-popup-edit:hover{background:var(--blue-light);}
+.ev-popup-del{background:var(--red-light);color:var(--red-med);}
+.ev-popup-del:hover{background:var(--red-med);color:#fff;}
 
 /* Tagihan status */
 .tagihan-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
@@ -638,11 +649,23 @@ tr:hover td{background:#fafbff;}
   </div>
 </div>
 
+<!-- Event popup -->
+<div class="ev-popup" id="evPopup">
+  <div class="ev-popup-title" id="evPopupTitle"></div>
+  <div class="ev-popup-kelas" id="evPopupKelas"></div>
+  <div class="ev-popup-time" id="evPopupTime"></div>
+  <div class="ev-popup-btns">
+    <button class="ev-popup-edit" onclick="editJadwalPopup()">✏️ Edit</button>
+    <button class="ev-popup-del"  onclick="deleteJadwalPopup()">🗑️ Hapus</button>
+  </div>
+</div>
+
 <!-- Modal Jadwal -->
 <div class="overlay" id="jadwalOverlay" onclick="if(event.target===this)closeModal('jadwalOverlay')">
   <div class="modal">
-    <div class="modal-title">Tambah Jadwal Mingguan</div>
+    <div class="modal-title" id="jadwalModalTitle">Tambah Jadwal Mingguan</div>
     <button class="modal-close" onclick="closeModal('jadwalOverlay')">✕</button>
+    <input type="hidden" id="jEditId">
     <div class="field" style="margin-bottom:10px;">
       <label class="lbl">Murid *</label>
       <select id="jMurid"><option value="">— Pilih Murid —</option></select>
@@ -795,6 +818,19 @@ function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 function fmtKelas(k){
   const m={classical_piano_private:'🎹 Classical Piano',music_theory_private:'📖 Theory (Private)',music_theory_group:'👥 Theory (Group)'};
   return m[k]||k;
+}
+function fmtKelasShort(k){
+  const m={classical_piano_private:'Piano',music_theory_private:'Theory',music_theory_group:'Theory Group'};
+  return m[k]||k;
+}
+function fmtTime(t){
+  if(!t) return '';
+  const s=String(t).trim();
+  // Sudah HH:MM
+  if(/^\d{1,2}:\d{2}$/.test(s)) return s;
+  // Parse dari Date string (Google Sheets kadang kirim full date)
+  try{ const d=new Date(s); if(!isNaN(d)) return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(e){}
+  return s;
 }
 function fmtTgl(str){
   if(!str) return '—';
@@ -1042,10 +1078,20 @@ function getOrtuLink(m){
   if(!m.token) return null;
   return `${getBaseUrl()}/ortu.html?mid=${m.id}&t=${m.token}`;
 }
-function salinLink(muridId){
-  const m = allMurid.find(x=>x.id===muridId);
-  if(!m){ showToast('Murid tidak ditemukan','error'); return; }
-  if(!m.token){ showToast('Token belum ada, simpan ulang data murid dulu','error'); return; }
+async function ensureToken(muridId){
+  let m = allMurid.find(x=>x.id===muridId);
+  if(!m) return null;
+  if(m.token) return m;
+  // Auto-generate token dan simpan
+  const token = genToken();
+  await apiPost({action:'save_murid', ...m, token});
+  m.token = token; // update local copy
+  showToast('Token dibuat otomatis ✓','success');
+  return m;
+}
+async function salinLink(muridId){
+  const m = await ensureToken(muridId);
+  if(!m) return;
   const link = getOrtuLink(m);
   navigator.clipboard.writeText(link).then(()=>{
     showToast('Link portal ortu tersalin! ✓','success');
@@ -1053,9 +1099,9 @@ function salinLink(muridId){
     prompt('Copy link ini:', link);
   });
 }
-function kirimWALink(muridId){
-  const m = allMurid.find(x=>x.id===muridId);
-  if(!m||!m.token){ showToast('Token belum ada','error'); return; }
+async function kirimWALink(muridId){
+  const m = await ensureToken(muridId);
+  if(!m) return;
   const link = getOrtuLink(m);
   const msg = `Halo, ini adalah link portal orang tua untuk *${m.nama}* di Clarin Music Studio 🎹\n\nKlik link berikut untuk melihat jadwal, laporan, dan tagihan:\n${link}\n\nLink ini khusus untuk ${m.nama}. Mohon tidak dibagikan ke orang lain. Terima kasih!`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
@@ -1293,11 +1339,10 @@ function renderJadwalGrid(){
         const h=j.waktu_selesai?evHA(j.waktu_mulai,j.waktu_selesai):HPXA;
         if(top<0||top>totalH)return'';
         return `<div class="tg-ev les" style="top:${top}px;height:${h}px;"
-          title="${murid?.nama||'—'} · ${guru?.nama||'—'} · ${j.waktu_mulai}–${j.waktu_selesai}\nKlik untuk hapus"
-          onclick="deleteJadwal('${j.id}')">
+          onclick="showEvPopup('${j.id}',event)">
           <div class="en">${murid?.nama||'—'}</div>
-          <div class="eg">${guru?.nama||'—'}</div>
-          <div class="et">${j.waktu_mulai||''}${j.waktu_selesai?'–'+j.waktu_selesai:''}</div>
+          <div class="eg">${fmtKelasShort(j.kelas)}</div>
+          <div class="et">${fmtTime(j.waktu_mulai)}${j.waktu_selesai?'–'+fmtTime(j.waktu_selesai):''}</div>
         </div>`;
       }).join('');
       const evB=bloks.map(b=>{
@@ -1322,17 +1367,43 @@ function renderJadwalGrid(){
     sc.scrollTop=scrollTo;
   },80);
 }
-function openJadwalModal(){ openModal('jadwalOverlay'); }
+function openJadwalModal(){
+  document.getElementById('jadwalModalTitle').textContent='Tambah Jadwal Mingguan';
+  document.getElementById('jEditId').value='';
+  document.getElementById('jMurid').value='';
+  document.getElementById('jGuru').value='';
+  document.getElementById('jHari').value='';
+  document.getElementById('jMulai').value='';
+  document.getElementById('jSelesai').value='';
+  document.getElementById('jKelas').value='classical_piano_private';
+  openModal('jadwalOverlay');
+}
+function openEditJadwal(id){
+  const j=allJadwal.find(x=>x.id===id);
+  if(!j) return;
+  document.getElementById('jadwalModalTitle').textContent='Edit Jadwal';
+  document.getElementById('jEditId').value=id;
+  document.getElementById('jMurid').value=j.murid_id;
+  document.getElementById('jGuru').value=j.guru_id;
+  document.getElementById('jHari').value=j.hari;
+  document.getElementById('jMulai').value=fmtTime(j.waktu_mulai);
+  document.getElementById('jSelesai').value=fmtTime(j.waktu_selesai);
+  document.getElementById('jKelas').value=j.kelas||'classical_piano_private';
+  openModal('jadwalOverlay');
+}
 async function saveJadwal(){
+  const editId= document.getElementById('jEditId').value;
   const murid = document.getElementById('jMurid').value;
   const guru  = document.getElementById('jGuru').value;
   const hari  = document.getElementById('jHari').value;
   const mulai = document.getElementById('jMulai').value;
   const sls   = document.getElementById('jSelesai').value;
   if(!murid||!guru||!hari||!mulai||!sls){ showToast('Lengkapi semua field','error'); return; }
-  await apiPost({action:'save_jadwal', murid_id:murid, guru_id:guru, hari, waktu_mulai:mulai, waktu_selesai:sls, kelas:document.getElementById('jKelas').value, aktif:true});
+  const body={action:'save_jadwal', murid_id:murid, guru_id:guru, hari, waktu_mulai:mulai, waktu_selesai:sls, kelas:document.getElementById('jKelas').value, aktif:true};
+  if(editId) body.id=editId;
+  await apiPost(body);
   closeModal('jadwalOverlay');
-  showToast('Jadwal disimpan ✓','success');
+  showToast(editId?'Jadwal diperbarui ✓':'Jadwal disimpan ✓','success');
   loadJadwal();
 }
 async function deleteJadwal(id){
@@ -1341,6 +1412,32 @@ async function deleteJadwal(id){
   showToast('Jadwal dihapus');
   loadJadwal();
 }
+
+// ── Event popup ──
+let _evId=null;
+function showEvPopup(id,e){
+  e.stopPropagation();
+  _evId=id;
+  const j=allJadwal.find(x=>x.id===id);
+  if(!j) return;
+  const murid=allMurid.find(m=>m.id===j.murid_id);
+  document.getElementById('evPopupTitle').textContent=murid?.nama||'—';
+  document.getElementById('evPopupKelas').textContent=fmtKelas(j.kelas);
+  document.getElementById('evPopupTime').textContent=j.hari+' · '+fmtTime(j.waktu_mulai)+(j.waktu_selesai?'–'+fmtTime(j.waktu_selesai):'');
+  const pop=document.getElementById('evPopup');
+  pop.style.display='block';
+  pop.style.left=(e.clientX+10)+'px';
+  pop.style.top=(e.clientY-10)+'px';
+  requestAnimationFrame(()=>{
+    const r=pop.getBoundingClientRect();
+    if(r.right>window.innerWidth-10)  pop.style.left=(e.clientX-r.width-10)+'px';
+    if(r.bottom>window.innerHeight-10) pop.style.top=(e.clientY-r.height)+'px';
+  });
+}
+function hideEvPopup(){ document.getElementById('evPopup').style.display='none'; _evId=null; }
+function editJadwalPopup(){ if(!_evId)return; hideEvPopup(); openEditJadwal(_evId); }
+function deleteJadwalPopup(){ if(!_evId)return; hideEvPopup(); deleteJadwal(_evId); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.ev-popup')&&!e.target.closest('.tg-ev')) hideEvPopup(); });
 function renderBlokir(){
   const el = document.getElementById('blokList');
   if(allBlokir.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada waktu yang diblokir</div>'; return; }

@@ -484,7 +484,18 @@ function kurangiSesiLaporan(muridId){
 
 // ══ JADWAL ══
 const TG_S=7, TG_E=22, HPX=64;  // start hour, end hour, px per hour
-function t2m(t){if(!t)return 0;const[h,m]=(t+':00').split(':').map(Number);return h*60+(m||0);}
+function fmtTime(t){
+  if(!t)return'';
+  const s=String(t).trim();
+  if(/^\d{1,2}:\d{2}$/.test(s))return s;
+  try{const d=new Date(s);if(!isNaN(d))return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}catch(e){}
+  return s;
+}
+function fmtKelasShort(k){
+  const m={classical_piano_private:'Piano',music_theory_private:'Theory',music_theory_group:'Theory Group'};
+  return m[k]||k;
+}
+function t2m(t){if(!t)return 0;const ts=fmtTime(t);const[h,m]=(ts+':00').split(':').map(Number);return h*60+(m||0);}
 function evTop(t){return(t2m(t)-TG_S*60)/60*HPX;}
 function evH(s,e){return Math.max((t2m(e)-t2m(s))/60*HPX,22);}
 
@@ -547,9 +558,10 @@ function renderWeek(){
         const top=evTop(s.waktu_mulai);
         const h=s.waktu_selesai?evH(s.waktu_mulai,s.waktu_selesai):HPX;
         if(top<0||top>totalH) return '';
-        return `<div class="tg-ev les" style="top:${top}px;height:${h}px;" title="${m?.nama||'—'} ${s.waktu_mulai||''}–${s.waktu_selesai||''}">
+        return `<div class="tg-ev les" style="top:${top}px;height:${h}px;">
           <div class="en">${m?.nama||'—'}</div>
-          <div class="et">${s.waktu_mulai||''}${s.waktu_selesai?'–'+s.waktu_selesai:''}</div>
+          <div class="et" style="color:var(--blue-med);font-size:9px;">${fmtKelasShort(s.kelas)}</div>
+          <div class="et">${fmtTime(s.waktu_mulai)}${s.waktu_selesai?'–'+fmtTime(s.waktu_selesai):''}</div>
         </div>`;
       }).join('');
       // Block events
@@ -562,7 +574,7 @@ function renderWeek(){
         const lbl=b.locked_by_admin?'🔒 Admin':(b.catatan||'🚫 Blokir saya');
         return `<div class="tg-ev ${cls}" style="top:${top}px;height:${h}px;">
           <div class="en">${lbl}</div>
-          <div class="et">${b.waktu_mulai}${b.waktu_selesai?'–'+b.waktu_selesai:''}</div>
+          <div class="et">${fmtTime(b.waktu_mulai)}${b.waktu_selesai?'–'+fmtTime(b.waktu_selesai):''}</div>
         </div>`;
       }).join('');
       return `<div class="tg-col${isToday?' today-col':''}" style="height:${totalH}px;">${evL}${evB}${nowLine}</div>`;
