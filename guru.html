@@ -358,9 +358,27 @@ textarea{resize:vertical;min-height:80px;line-height:1.6;}
   <div class="modal">
     <div class="modal-title">Blokir Waktu Saya</div>
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="field" style="margin-bottom:10px;">
+    <div class="field" style="margin-bottom:12px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;">
+        <input type="checkbox" id="bkMingguan" onchange="toggleBlokMode()" style="width:16px;height:16px;cursor:pointer;">
+        🔄 Mingguan (berulang setiap minggu)
+      </label>
+    </div>
+    <div id="bkTglWrap" class="field" style="margin-bottom:10px;">
       <label class="lbl">Tanggal *</label>
       <input id="bkTgl" type="date">
+    </div>
+    <div id="bkHariWrap" class="field" style="margin-bottom:10px;display:none;">
+      <label class="lbl">Hari *</label>
+      <select id="bkHari">
+        <option value="Senin">Senin</option>
+        <option value="Selasa">Selasa</option>
+        <option value="Rabu">Rabu</option>
+        <option value="Kamis">Kamis</option>
+        <option value="Jumat">Jumat</option>
+        <option value="Sabtu">Sabtu</option>
+        <option value="Minggu">Minggu</option>
+      </select>
     </div>
     <div class="g2" style="margin-bottom:10px;">
       <div class="field"><label class="lbl">Dari Pukul</label><input id="bkMulai" type="time"></div>
@@ -547,8 +565,8 @@ function renderWeek(){
       const isToday=d.getTime()===today.getTime();
       // Recurring weekly lessons (matched by day name)
       const lessons=allJadwal.filter(j=>j.hari===HARI[i]);
-      // Specific date blocks
-      const bloks=allBlokir.filter(b=>b.tgl===tgl);
+      // Date-specific + mingguan blocks
+      const bloks=allBlokir.filter(b=>b.tgl===tgl||(b.mingguan&&b.hari===HARI[i]));
       // Current time indicator
       const nowLine=isToday&&nowMin>=TG_S*60&&nowMin<TG_E*60
         ?`<div class="tg-nowline" style="top:${(nowMin-TG_S*60)/60*HPX}px;"></div>`:'';
@@ -727,4 +745,84 @@ async function loadUltah(){
 // ══ NOTIF ══
 async function loadNotif(){
   const [rR,rM]=await Promise.all([api({action:'get_reschedule'}),api({action:'get_murid'})]);
-  allReschedule=(rR.data||[]).filter(
+  allReschedule=(rR.data||[]).filter(r=>r.guru_id===guruId);
+  allMurid=rM.data||[];
+  const el=document.getElementById('notifList');
+  const pending=allReschedule.filter(r=>r.status==='pending');
+  if(pending.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan reschedule</div>'; return; }
+  el.innerHTML=pending.map(r=>{
+    const m=allMurid.find(x=>x.id===r.murid_id);
+    return `<div class="tagihan-card">
+      <div style="font-size:13px;font-weight:600;">${m?.nama||'—'}</div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0;">📅 ${r.tgl_asli||'—'} → ${r.tgl_baru||'belum tentukan'}</div>
+      <div style="font-size:12px;color:var(--muted);">💬 ${r.alasan||'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══ BLOKIR ══
+function toggleBlokMode(){
+  const mingguan=document.getElementById('bkMingguan').checked;
+  document.getElementById('bkTglWrap').style.display=mingguan?'none':'block';
+  document.getElementById('bkHariWrap').style.display=mingguan?'block':'none';
+}
+function openBlokModal(){
+  document.getElementById('bkMingguan').checked=false;
+  document.getElementById('bkTglWrap').style.display='block';
+  document.getElementById('bkHariWrap').style.display='none';
+  document.getElementById('bkTgl').value='';
+  document.getElementById('bkMulai').value='';
+  document.getElementById('bkSelesai').value='';
+  document.getElementById('bkCatatan').value='';
+  openModal('blokOverlay');
+}
+async function loadBlokir(){
+  const r=await api({action:'get_blokir'});
+  allBlokir=(r.data||[]).filter(b=>b.guru_id===guruId||b.guru_id==='all');
+  renderBlokir();
+}
+function renderBlokir(){
+  const el=document.getElementById('blokirList');
+  const mine=allBlokir.filter(b=>!b.locked_by_admin&&b.guru_id===guruId);
+  if(mine.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada blokir waktu</div>'; return; }
+  el.innerHTML=mine.map(b=>`
+    <div class="blok-card">
+      <div>
+        <div style="font-size:13px;font-weight:600;">${b.mingguan?'🔄 Setiap '+b.hari:'📅 '+(b.tgl||'—')}</div>
+        <div style="font-size:12px;color:var(--muted);">${b.waktu_mulai||'—'}–${b.waktu_selesai||'—'} ${b.catatan?'· '+b.catatan:''}</div>
+      </div>
+      <button class="btn btn-danger btn-xs" onclick="deleteBlokir('${b.id}')">🗑️</button>
+    </div>
+  `).join('');
+}
+async function saveBlokir(){
+  const mingguan=document.getElementById('bkMingguan').checked;
+  const tgl=document.getElementById('bkTgl').value;
+  const hari=mingguan?document.getElementById('bkHari').value:'';
+  const mulai=document.getElementById('bkMulai').value;
+  const selesai=document.getElementById('bkSelesai').value;
+  const catatan=document.getElementById('bkCatatan').value.trim();
+  if(!mulai||!selesai){ showToast('Waktu wajib diisi','error'); return; }
+  if(!mingguan&&!tgl){ showToast('Pilih tanggal dulu','error'); return; }
+  await apiPost({action:'save_blokir',guru_id:guruId,tgl:mingguan?'':tgl,hari,waktu_mulai:mulai,waktu_selesai:selesai,catatan,mingguan:mingguan?'1':''});
+  showToast('Blokir waktu disimpan ✓','success');
+  closeModal();
+  loadBlokir();
+  loadJadwal();
+}
+async function deleteBlokir(id){
+  if(!confirm('Hapus blokir waktu ini?')) return;
+  await apiPost({action:'delete_blokir',id});
+  showToast('Blokir dihapus ✓','success');
+  loadBlokir();
+  loadJadwal();
+}
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('lapTgl').value=new Date().toISOString().slice(0,10);
+  loadJadwal();
+});
+</script>
+</body>
+</html>
