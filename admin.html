@@ -553,9 +553,14 @@ tr:hover td{background:#fafbff;}
         <label class="lbl">Nama Studio</label>
         <input type="text" id="setNamaStudio" placeholder="Clarin Music Studio" oninput="settingsDirty()">
       </div>
-      <div class="field" style="margin-bottom:16px;">
+      <div class="field" style="margin-bottom:14px;">
         <label class="lbl">Tarif Per Sesi (Rp, default)</label>
         <input type="number" id="setTarif" placeholder="200000" oninput="settingsDirty()">
+      </div>
+      <div class="field" style="margin-bottom:16px;">
+        <label class="lbl">Email Admin (untuk notifikasi reschedule)</label>
+        <input type="email" id="setAdminEmail" placeholder="admin@gmail.com" oninput="settingsDirty()">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">📬 Email ini menerima notifikasi setiap ada permintaan reschedule dari ortu</div>
       </div>
       <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
     </div>
@@ -724,7 +729,7 @@ tr:hover td{background:#fafbff;}
 // ══════════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════════
-const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbyswxxntfbDDTn6PViHA3BFJTJYLRtRBYtl9KM_-eMI-sJPa3JUuQ7pDHN5A2ZlFk7XEg/exec';
 
 // ══════════════════════════════════════════════════════
 //  AUTH GUARD
@@ -1462,184 +1467,4 @@ function renderTagihan(){
       <div class="tagihan-top">
         <div>
           <div class="tagihan-name">${namaMurid(t.murid_id)}</div>
-          <div class="tagihan-meta">${t.jenis_paket==='8'?'Paket 8 Sesi (+1 gratis)':t.jenis_paket==='4'?'Paket 4 Sesi':'Custom '+(t.total_sesi||'')+' Sesi'} · ${t.tgl_tagihan||'—'}</div>
-          ${t.catatan?`<div style="font-size:11px;color:var(--muted);margin-top:3px;">${t.catatan}</div>`:''}
-        </div>
-        <div style="text-align:right;">
-          <div class="tagihan-nominal">Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
-          <div style="margin-top:5px;">${fmtStatus(t.status)}</div>
-        </div>
-      </div>
-      ${t.bukti_bayar?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">📎 Bukti: ${t.bukti_bayar}</div>`:''}
-      <div class="tagihan-actions">
-        ${t.status==='dibayar'?`<button class="btn btn-green btn-xs" onclick="openKonfirmasi('${t.id}')">✅ Konfirmasi Lunas</button>`:''}
-        ${t.status==='menunggu'?'<span style="font-size:11px;color:var(--muted);">Menunggu pembayaran dari orang tua</span>':''}
-        ${t.status==='dikonfirmasi'?'<span style="font-size:11px;color:var(--green-med);">✅ Paket aktif</span>':''}
-        <button class="btn btn-xs" onclick="kirimWATagihan('${t.id}')" style="background:#25D366;color:#fff;border:none;">📲 Kirim WA Tagihan</button>
-      </div>
-    </div>`).join('');
-}
-function kirimWATagihan(tagihanId){
-  const t = allTagihan.find(x=>x.id===tagihanId);
-  if(!t){ showToast('Tagihan tidak ditemukan','error'); return; }
-  const murid = allMurid.find(m=>m.id===t.murid_id);
-  const namaM = murid?.nama || '—';
-  const jenis = t.jenis_paket==='8'?'Paket 8 Sesi (+1 sesi gratis 🎁)':t.jenis_paket==='4'?'Paket 4 Sesi':'Paket Custom '+t.total_sesi+' Sesi';
-  const nominal = 'Rp '+Number(t.nominal||0).toLocaleString('id-ID');
-  const baseUrl = window.location.href.replace('admin.html','').replace(/\/$/,'');
-  const portalLink = murid?.token ? `${baseUrl}/ortu.html?mid=${murid.id}&t=${murid.token}` : '(link portal belum tersedia)';
-
-  const msg =
-`Halo Bapak/Ibu orang tua *${namaM}* 🎹
-
-Berikut tagihan les *Clarin Music Studio*:
-
-📦 *${jenis}*
-💰 Nominal: *${nominal}*
-📅 Tanggal tagihan: ${t.tgl_tagihan||'—'}
-${t.catatan?'📝 Catatan: '+t.catatan+'\n':''}
-Mohon melakukan pembayaran dan konfirmasi melalui portal orang tua:
-👉 ${portalLink}
-
-Setelah pembayaran dikonfirmasi, jadwal les ${namaM} akan aktif kembali.
-
-Terima kasih atas kepercayaannya 🙏
-*Clarin Music Studio*`;
-
-  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
-}
-function updateNominal(){
-  const paket = document.getElementById('tagihanPaket').value;
-  const cf = document.getElementById('customSesiField');
-  const tarif = Number(localStorage.getItem('cms_tarif')||200000);
-  if(paket==='4')      { document.getElementById('tagihanNominal').value=tarif*4; cf.style.display='none'; }
-  else if(paket==='8') { document.getElementById('tagihanNominal').value=tarif*8; cf.style.display='none'; }
-  else if(paket==='custom') { document.getElementById('tagihanNominal').value=''; cf.style.display='block'; }
-  else { document.getElementById('tagihanNominal').value=''; cf.style.display='none'; }
-}
-async function buatTagihan(){
-  const muridId = document.getElementById('tagihanMurid').value;
-  const paket   = document.getElementById('tagihanPaket').value;
-  const nominal = document.getElementById('tagihanNominal').value;
-  if(!muridId||!paket||!nominal){ showToast('Lengkapi semua field','error'); return; }
-  const totalSesi = paket==='4'?4:paket==='8'?8:Number(document.getElementById('tagihanCustomSesi').value)||0;
-  const bonus = paket==='8'?1:0;
-  await apiPost({action:'save_tagihan', murid_id:muridId, jenis_paket:paket, total_sesi:totalSesi, bonus, nominal, catatan:document.getElementById('tagihanCatatan').value});
-  showToast('Tagihan dibuat & dikirim ke portal ortu ✓','success');
-  document.getElementById('tagihanMurid').value='';
-  document.getElementById('tagihanPaket').value='';
-  document.getElementById('tagihanNominal').value='';
-  document.getElementById('tagihanCatatan').value='';
-  loadTagihan();
-}
-function openKonfirmasi(id){
-  konfirmasiId = id;
-  const t = allTagihan.find(x=>x.id===id);
-  if(!t) return;
-  document.getElementById('konfirmasiDetail').innerHTML=`
-    <div style="background:var(--green-light);padding:16px;border-radius:12px;margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:600;color:var(--green);">Konfirmasi Pembayaran</div>
-      <div style="font-size:13px;margin-top:6px;"><b>Murid:</b> ${namaMurid(t.murid_id)}</div>
-      <div style="font-size:13px;"><b>Paket:</b> ${t.jenis_paket==='8'?'8 Sesi (+1 bonus)':t.jenis_paket==='4'?'4 Sesi':'Custom'}</div>
-      <div style="font-size:13px;"><b>Nominal:</b> Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
-      ${t.bukti_bayar?`<div style="font-size:12px;color:var(--green);margin-top:4px;">📎 Bukti: ${t.bukti_bayar}</div>`:''}
-    </div>
-    <div style="font-size:13px;color:var(--muted);">Setelah konfirmasi, paket sesi murid akan aktif dan orang tua bisa menambah jadwal.</div>`;
-  openModal('konfirmasiOverlay');
-}
-async function konfirmasiBayar(){
-  if(!konfirmasiId) return;
-  await apiPost({action:'konfirmasi_tagihan', id:konfirmasiId});
-  closeModal('konfirmasiOverlay');
-  showToast('Pembayaran dikonfirmasi ✓ Paket aktif!','success');
-  loadTagihan();
-}
-
-// ══════════════════════════════════════════════════════
-//  RESCHEDULE
-// ══════════════════════════════════════════════════════
-async function loadReschedule(){
-  const [rR, rM, rG] = await Promise.all([api({action:'get_reschedule'}), api({action:'get_murid'}), api({action:'get_guru'})]);
-  allReschedule = rR.data||[];
-  allMurid = rM.data||[];
-  allGuru  = rG.data||[];
-  renderReschedule();
-}
-function renderReschedule(){
-  const filter = document.getElementById('reschedFilter').value;
-  let list = [...allReschedule].reverse();
-  if(filter) list = list.filter(r=>r.status===filter);
-  const el = document.getElementById('rescheduleList');
-  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan reschedule</div>'; return; }
-  el.innerHTML = list.map(r=>{
-    const cls = r.status==='accepted'?'accepted':r.status==='rejected'?'rejected':'';
-    const statusBadge = {pending:'<span class="badge badge-orange">⏳ Pending</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'}[r.status];
-    return `<div class="req-card ${cls}">
-      <div class="req-top">
-        <div>
-          <div class="req-name">${namaMurid(r.murid_id)}</div>
-          <div style="font-size:11px;color:var(--muted);">Guru: ${namaGuru(r.guru_id)}</div>
-        </div>
-        ${statusBadge}
-      </div>
-      <div class="req-detail">📅 Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
-      <div class="req-detail">🔄 Usulan baru: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
-      ${r.alasan?`<div class="req-detail">💬 Alasan: ${r.alasan}</div>`:''}
-      ${r.status==='pending'?`<div class="req-actions">
-        <button class="btn btn-green btn-xs" onclick="responReschedule('${r.id}','accepted')">✅ Terima</button>
-        <button class="btn btn-danger btn-xs" onclick="responReschedule('${r.id}','rejected')">❌ Tolak</button>
-      </div>`:''}
-    </div>`;
-  }).join('');
-}
-async function responReschedule(id, status){
-  // Check 24h rule
-  const r = allReschedule.find(x=>x.id===id);
-  if(r&&r.tgl_asli){
-    const lesDate = new Date(r.tgl_asli);
-    const now = new Date();
-    const diffH = (lesDate-now)/(1000*60*60);
-    if(diffH < 24 && status==='accepted'){
-      showToast('⚠️ Kurang dari 24 jam sebelum les, tidak bisa diterima','error');
-      return;
-    }
-  }
-  await apiPost({action:'respons_reschedule', id, status});
-  showToast(status==='accepted'?'Reschedule diterima ✓':'Reschedule ditolak', status==='accepted'?'success':'');
-  loadReschedule();
-  loadDashboard();
-}
-
-// ══════════════════════════════════════════════════════
-//  SETTINGS
-// ══════════════════════════════════════════════════════
-async function loadSettings(){
-  const r = await api({action:'get_settings'});
-  const d = r.data||{};
-  document.getElementById('setApiUrl').value   = localStorage.getItem('cms_api_url')||d.api_url||'';
-  document.getElementById('setAdminPin').value = localStorage.getItem('cms_admin_pin')||d.admin_pin||'';
-  document.getElementById('setNamaStudio').value = d.nama_studio||'Clarin Music Studio';
-  document.getElementById('setTarif').value    = localStorage.getItem('cms_tarif')||d.tarif||'200000';
-}
-function settingsDirty(){}
-async function saveSettings(){
-  const url = document.getElementById('setApiUrl').value.trim();
-  const pin = document.getElementById('setAdminPin').value.trim();
-  const tarif = document.getElementById('setTarif').value.trim();
-  await apiPost({action:'save_settings', api_url:url, admin_pin:pin, tarif, nama_studio:document.getElementById('setNamaStudio').value});
-  if(url) localStorage.setItem('cms_api_url',url);
-  if(pin) localStorage.setItem('cms_admin_pin',pin);
-  if(tarif) localStorage.setItem('cms_tarif',tarif);
-  showToast('Pengaturan disimpan ✓','success');
-}
-
-// ══════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('absenDate').value = new Date().toISOString().slice(0,10);
-  loadDashboard();
-});
-</script>
-</body>
-</html>
+          <div class="tagihan-meta">${t.jenis_paket==='8'?'Paket 8 Sesi (+1 gratis)':t.jenis_paket==='4'

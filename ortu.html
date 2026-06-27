@@ -316,7 +316,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 <div id="toast"></div>
 
 <script>
-const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbyswxxntfbDDTn6PViHA3BFJTJYLRtRBYtl9KM_-eMI-sJPa3JUuQ7pDHN5A2ZlFk7XEg/exec';
 
 // ── Auth via URL token ──────────────────────────────────────────
 const _params  = new URLSearchParams(window.location.search);
@@ -688,36 +688,4 @@ async function ajukanReschedule(){
     waktu_proposed:selectedSlot.mulai+'–'+selectedSlot.selesai,
     alasan
   });
-  showToast('Permintaan reschedule terkirim! Menunggu persetujuan guru ✓','success');
-  selectedSlot=null;
-  document.getElementById('selectedSlotPreview').style.display='none';
-  document.getElementById('resSesiAsli').value='';
-  document.getElementById('resAlasan').value='';
-  document.getElementById('cekJadwalGuru').style.display='none';
-  loadReschedule();
-}
-function renderResRiwayat(){
-  const el=document.getElementById('resRiwayat');
-  if(allReschedule.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada riwayat reschedule</div>'; return; }
-  const statusMap={pending:'<span class="badge badge-orange">⏳ Menunggu</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'};
-  el.innerHTML=allReschedule.map(r=>`
-    <div style="padding:12px 14px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:8px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:13px;font-weight:600;">Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
-          <div style="font-size:12px;color:var(--muted);">Diajukan: ${fmtTgl(r.tgl_request)}</div>
-        </div>
-        ${statusMap[r.status]||''}
-      </div>
-      <div style="font-size:12px;color:var(--muted);">🔄 Usulan: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
-      ${r.alasan?`<div style="font-size:12px;color:var(--muted);">💬 ${r.alasan}</div>`:''}
-    </div>`).join('');
-}
-
-document.addEventListener('DOMContentLoaded', async ()=>{
-  await validateToken();
-  loadJadwal();
-});
-</script>
-</body>
-</html>
+  showToast('Permintaan reschedule terkirim! Menunggu persetujuan guru ✓','succes

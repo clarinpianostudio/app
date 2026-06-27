@@ -386,7 +386,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6;}
 <div id="toast"></div>
 
 <script>
-const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbyswxxntfbDDTn6PViHA3BFJTJYLRtRBYtl9KM_-eMI-sJPa3JUuQ7pDHN5A2ZlFk7XEg/exec';
 
 // AUTH
 const guruId   = sessionStorage.getItem('cms_guru_id');
@@ -715,97 +715,4 @@ async function loadUltah(){
 // ══ NOTIF ══
 async function loadNotif(){
   const [rR,rM]=await Promise.all([api({action:'get_reschedule'}),api({action:'get_murid'})]);
-  allReschedule=(rR.data||[]).filter(r=>r.guru_id===guruId);
-  allMurid=rM.data||[];
-  const pending=allReschedule.filter(r=>r.status==='pending');
-  const tabBtn=document.getElementById('tabNotif');
-  tabBtn.textContent=pending.length>0?`🔔 Notifikasi (${pending.length})`:'🔔 Notifikasi';
-  renderNotif();
-}
-function renderNotif(){
-  const list=[...allReschedule].reverse();
-  const el=document.getElementById('notifList');
-  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan reschedule</div>'; return; }
-  el.innerHTML=list.map(r=>{
-    const murid=allMurid.find(m=>m.id===r.murid_id);
-    const cls=r.status==='accepted'?'accepted':r.status==='rejected'?'rejected':'';
-    const statusBadge={pending:'<span class="badge badge-orange">⏳ Pending</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'}[r.status];
-    return `<div class="notif-card ${cls}">
-      <div class="notif-top">
-        <div class="notif-name">${murid?.nama||'—'}</div>
-        ${statusBadge}
-      </div>
-      <div class="notif-detail">📅 Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
-      <div class="notif-detail">🔄 Usulan: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
-      ${r.alasan?`<div class="notif-detail">💬 Alasan: ${r.alasan}</div>`:''}
-      ${r.status==='pending'?`<div style="display:flex;gap:6px;margin-top:8px;">
-        <button class="btn btn-green btn-xs" onclick="responNotif('${r.id}','accepted')">✅ Terima</button>
-        <button class="btn btn-danger btn-xs" onclick="responNotif('${r.id}','rejected')">❌ Tolak</button>
-      </div>`:''}
-    </div>`;
-  }).join('');
-}
-async function responNotif(id,status){
-  const r=allReschedule.find(x=>x.id===id);
-  if(r?.tgl_asli&&status==='accepted'){
-    const diffH=(new Date(r.tgl_asli)-new Date())/(1000*60*60);
-    if(diffH<24){ showToast('⚠️ Kurang dari 24 jam, tidak bisa diterima','error'); return; }
-  }
-  await apiPost({action:'respons_reschedule',id,status});
-  showToast(status==='accepted'?'Reschedule diterima ✓':'Reschedule ditolak',status==='accepted'?'success':'');
-  loadNotif();
-}
-
-// ══ BLOKIR ══
-async function loadBlokir(){
-  const rB=await api({action:'get_blokir'});
-  allBlokir=(rB.data||[]).filter(b=>(b.guru_id===guruId||b.guru_id==='all'));
-  renderBlokirList();
-}
-function renderBlokirList(){
-  const myBlokir=allBlokir.filter(b=>b.guru_id===guruId);
-  const adminBlokir=allBlokir.filter(b=>b.guru_id==='all');
-  const el=document.getElementById('blokirList');
-  let html='';
-  if(myBlokir.length===0&&adminBlokir.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada waktu yang diblokir</div>'; return; }
-  if(myBlokir.length>0){
-    html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;">Blokir Saya</div>';
-    html+=myBlokir.map(b=>`<div class="blok-card">
-      <div><div style="font-size:13px;font-weight:600;">🚫 ${b.tgl||'—'} ${b.waktu_mulai?b.waktu_mulai+'–'+b.waktu_selesai:''}</div>
-      <div style="font-size:11px;color:var(--muted);">${b.catatan||''}</div></div>
-      <button class="btn btn-danger btn-xs" onclick="deleteBlokir('${b.id}')">Hapus</button>
-    </div>`).join('');
-  }
-  if(adminBlokir.length>0){
-    html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 8px;">Blokir dari Admin</div>';
-    html+=adminBlokir.map(b=>`<div style="padding:10px 13px;background:var(--red-light);border:1px solid #fecaca;border-radius:9px;margin-bottom:7px;">
-      <div style="font-size:13px;font-weight:600;">🔒 ${b.tgl||'—'} ${b.waktu_mulai?b.waktu_mulai+'–'+b.waktu_selesai:''}</div>
-      <div style="font-size:11px;color:var(--muted);">${b.catatan||''}</div>
-    </div>`).join('');
-  }
-  el.innerHTML=html;
-}
-function openBlokModal(){ document.getElementById('blokOverlay').classList.add('show'); }
-async function saveBlokir(){
-  const tgl=document.getElementById('bkTgl').value;
-  if(!tgl){ showToast('Pilih tanggal','error'); return; }
-  await apiPost({action:'save_blokir',guru_id:guruId,tgl,waktu_mulai:document.getElementById('bkMulai').value,waktu_selesai:document.getElementById('bkSelesai').value,catatan:document.getElementById('bkCatatan').value,locked_by_admin:false});
-  closeModal();
-  showToast('Waktu diblokir 🔒');
-  loadBlokir();
-}
-async function deleteBlokir(id){
-  if(!confirm('Hapus blokir waktu ini?')) return;
-  await apiPost({action:'delete_blokir',id});
-  showToast('Blokir dihapus');
-  loadBlokir();
-}
-
-// INIT
-document.addEventListener('DOMContentLoaded',()=>{
-  loadJadwal();
-  loadNotif();
-});
-</script>
-</body>
-</html>
+  allReschedule=(rR.data||[]).filter(
