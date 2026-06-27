@@ -148,14 +148,34 @@ tr:hover td{background:#fafbff;}
 .absen-actions{display:flex;gap:6px;flex-shrink:0;}
 
 /* Jadwal mingguan */
-.jadwal-hari{margin-bottom:1rem;}
-.jadwal-hari-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:6px;padding-left:4px;}
-.jadwal-slot{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border:1px solid var(--border);border-radius:9px;margin-bottom:5px;flex-wrap:wrap;}
-.jadwal-slot-time{font-size:12px;font-weight:700;color:var(--blue);min-width:80px;}
-.jadwal-slot-info{flex:1;min-width:0;}
-.jadwal-slot-name{font-size:13px;font-weight:500;}
-.jadwal-slot-meta{font-size:11px;color:var(--muted);}
-.jadwal-slot-actions{margin-left:auto;display:flex;gap:5px;}
+/* ── Time-grid (admin jadwal) ── */
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;}
+.week-label{font-size:14px;font-weight:600;flex:1;text-align:center;}
+.tg-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;}
+.tg-header{display:grid;grid-template-columns:52px repeat(7,1fr);background:var(--blue-bg);border-bottom:2px solid var(--border);}
+.tg-hgut{}
+.tg-dayhead{text-align:center;padding:7px 2px;border-left:1px solid var(--border);}
+.tg-dayhead.today .tg-ddate{background:var(--blue-med);color:#fff;border-radius:50%;width:27px;height:27px;line-height:27px;margin:2px auto 0;}
+.tg-dname{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+.tg-ddate{font-size:15px;font-weight:700;color:var(--navy);}
+.tg-scroll{overflow-y:auto;max-height:540px;}
+.tg-body{display:grid;grid-template-columns:52px repeat(7,1fr);}
+.tg-gut{display:flex;flex-direction:column;border-right:1px solid #e2e8f0;background:#fafbfd;}
+.tg-hl{height:64px;display:flex;align-items:flex-start;padding:3px 6px 0 0;justify-content:flex-end;font-size:9.5px;color:#94a3b8;font-weight:500;white-space:nowrap;}
+.tg-col{position:relative;border-left:1px solid #e8eef6;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(32px - .5px),#f8fafc calc(32px - .5px),#f8fafc 32px,transparent 32px,transparent calc(64px - 1px),#e2e8f0 calc(64px - 1px),#e2e8f0 64px);}
+.tg-col.today-col{background-image:repeating-linear-gradient(to bottom,rgba(37,99,235,.04) 0,rgba(37,99,235,.04) calc(32px - .5px),rgba(37,99,235,.07) calc(32px - .5px),rgba(37,99,235,.07) 32px,rgba(37,99,235,.04) 32px,rgba(37,99,235,.04) calc(64px - 1px),#dde4ef calc(64px - 1px),#dde4ef 64px);}
+.tg-ev{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 5px;font-size:10px;overflow:hidden;cursor:pointer;z-index:2;line-height:1.35;transition:.1s;}
+.tg-ev:hover{filter:brightness(.93);}
+.tg-ev.les{background:#dbeafe;border:1px solid #93c5fd;border-left:3px solid var(--blue-med);}
+.tg-ev.les .en{font-weight:700;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tg-ev.les .eg{color:var(--muted);font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tg-ev.les .et{color:#3b82f6;font-size:9px;}
+.tg-ev.admblok{background:var(--red-light);border:1px solid #fecaca;border-left:3px solid var(--red-med);cursor:default;}
+.tg-ev.admblok .en{font-weight:700;color:var(--red-med);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tg-ev.admblok .et{color:var(--red-med);font-size:9px;}
+.tg-nowline{position:absolute;left:0;right:0;height:2px;background:var(--red-med);z-index:5;pointer-events:none;}
+.tg-nowline::before{content:'';position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--red-med);}
 
 /* Tagihan status */
 .tagihan-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
@@ -349,15 +369,33 @@ tr:hover td{background:#fafbff;}
       <button class="btn btn-primary btn-sm" onclick="openJadwalModal()">+ Tambah Jadwal</button>
     </div>
 
-    <!-- Filter guru -->
-    <div class="field" style="max-width:260px;margin-bottom:1rem;">
-      <label class="lbl">Filter Guru</label>
-      <select id="jadwalGuruFilter" onchange="renderJadwal()">
-        <option value="">Semua Guru</option>
-      </select>
+    <!-- Controls row -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.75rem;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label class="lbl" style="margin:0;">Guru:</label>
+        <select id="jadwalGuruFilter" onchange="renderJadwalGrid()" style="width:auto;font-size:12px;padding:6px 10px;">
+          <option value="">Semua Guru</option>
+        </select>
+      </div>
+      <div class="week-nav" style="flex:1;margin:0;">
+        <button class="btn btn-ghost btn-xs" onclick="changeWeekAdmin(-1)">← Prev</button>
+        <span class="week-label" id="weekLabelAdmin"></span>
+        <button class="btn btn-ghost btn-xs" onclick="changeWeekAdmin(1)">Next →</button>
+      </div>
     </div>
 
-    <div id="jadwalList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+    <!-- Time-grid -->
+    <div class="tg-wrap">
+      <div class="tg-header" id="tgHdrAdmin"></div>
+      <div class="tg-scroll" id="tgScrollAdmin">
+        <div class="tg-body" id="tgBodyAdmin"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:.75rem;">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#dbeafe;border-left:3px solid var(--blue-med);margin-right:4px;border-radius:2px;"></span>Les (klik = hapus)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--red-light);border-left:3px solid var(--red-med);margin-right:4px;border-radius:2px;"></span>Blokir admin</span>
+      <span><span style="display:inline-block;width:10px;height:2px;background:var(--red-med);margin-right:4px;vertical-align:middle;border-radius:2px;"></span>Sekarang</span>
+    </div>
   </div>
 
   <!-- Blokir waktu guru -->
@@ -712,6 +750,7 @@ let allTagihan = [];
 let allReschedule = [];
 let allBlokir  = [];
 let allSesi    = [];
+let weekOffsetAdmin = 0;
 let konfirmasiId = null;
 
 // ══════════════════════════════════════════════════════
@@ -1188,35 +1227,95 @@ async function loadJadwal(){
   document.getElementById('jMurid').innerHTML='<option value="">— Pilih Murid —</option>'+allMurid.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('');
   document.getElementById('jGuru').innerHTML='<option value="">— Pilih Guru —</option>'+allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
   document.getElementById('bkGuru').innerHTML='<option value="all">Semua Guru</option>'+allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
-  renderJadwal();
+  renderJadwalGrid();
   renderBlokir();
 }
-function renderJadwal(){
+
+// ── Time-grid constants (shared with guru.html) ──
+const TGA_S=7, TGA_E=22, HPXA=64;
+function ta2m(t){if(!t)return 0;const[h,m]=(t+':00').split(':').map(Number);return h*60+(m||0);}
+function evTopA(t){return(ta2m(t)-TGA_S*60)/60*HPXA;}
+function evHA(s,e){return Math.max((ta2m(e)-ta2m(s))/60*HPXA,22);}
+function getWeekDatesAdmin(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const mon=new Date(today);
+  mon.setDate(today.getDate()-(today.getDay()||7)+1+(weekOffsetAdmin*7));
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+function changeWeekAdmin(d){weekOffsetAdmin+=d;renderJadwalGrid();}
+
+function renderJadwalGrid(){
   const filter = document.getElementById('jadwalGuruFilter').value;
-  const HARI = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const HARI   = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const days   = getWeekDatesAdmin();
+  const today  = new Date();today.setHours(0,0,0,0);
+  const fmt    = d=>d.toISOString().slice(0,10);
+  const totalH = (TGA_E-TGA_S)*HPXA;
+  const hours  = Array.from({length:TGA_E-TGA_S},(_,i)=>TGA_S+i);
+  const nowMin = new Date().getHours()*60+new Date().getMinutes();
+
   let list = allJadwal.filter(j=>j.aktif!==false);
   if(filter) list = list.filter(j=>j.guru_id===filter);
 
-  const el = document.getElementById('jadwalList');
-  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada jadwal</div>'; return; }
+  document.getElementById('weekLabelAdmin').textContent=
+    `${days[0].toLocaleDateString('id-ID',{day:'numeric',month:'short'})} – ${days[6].toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}`;
 
-  const byHari = {};
-  HARI.forEach(h=>{ byHari[h] = list.filter(j=>j.hari===h).sort((a,b)=>a.waktu_mulai?.localeCompare(b.waktu_mulai)); });
-  el.innerHTML = HARI.filter(h=>byHari[h].length>0).map(h=>`
-    <div class="jadwal-hari">
-      <div class="jadwal-hari-title">${h}</div>
-      ${byHari[h].map(j=>`
-        <div class="jadwal-slot">
-          <div class="jadwal-slot-time">⏰ ${j.waktu_mulai}–${j.waktu_selesai}</div>
-          <div class="jadwal-slot-info">
-            <div class="jadwal-slot-name">${namaMurid(j.murid_id)}</div>
-            <div class="jadwal-slot-meta">${namaGuru(j.guru_id)} · ${fmtKelas(j.kelas)}</div>
-          </div>
-          <div class="jadwal-slot-actions">
-            <button class="btn btn-danger btn-xs" onclick="deleteJadwal('${j.id}')">Hapus</button>
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
+  // Header
+  document.getElementById('tgHdrAdmin').innerHTML=
+    '<div class="tg-hgut"></div>'+
+    days.map((d,i)=>{
+      const isToday=d.getTime()===today.getTime();
+      return `<div class="tg-dayhead${isToday?' today':''}">
+        <div class="tg-dname">${HARI[i].slice(0,3)}</div>
+        <div class="tg-ddate">${d.getDate()}</div>
+      </div>`;
+    }).join('');
+
+  // Body
+  document.getElementById('tgBodyAdmin').innerHTML=
+    `<div class="tg-gut">${hours.map(h=>`<div class="tg-hl">${String(h).padStart(2,'0')}:00</div>`).join('')}</div>`+
+    days.map((d,i)=>{
+      const tgl    = fmt(d);
+      const isToday= d.getTime()===today.getTime();
+      const lessons= list.filter(j=>j.hari===HARI[i]);
+      const bloks  = allBlokir.filter(b=>b.tgl===tgl);
+      const nowLine= isToday&&nowMin>=TGA_S*60&&nowMin<TGA_E*60
+        ?`<div class="tg-nowline" style="top:${(nowMin-TGA_S*60)/60*HPXA}px;"></div>`:'';
+      const evL=lessons.map(j=>{
+        const murid=allMurid.find(m=>m.id===j.murid_id);
+        const guru =allGuru.find(g=>g.id===j.guru_id);
+        const top=evTopA(j.waktu_mulai);
+        const h=j.waktu_selesai?evHA(j.waktu_mulai,j.waktu_selesai):HPXA;
+        if(top<0||top>totalH)return'';
+        return `<div class="tg-ev les" style="top:${top}px;height:${h}px;"
+          title="${murid?.nama||'—'} · ${guru?.nama||'—'} · ${j.waktu_mulai}–${j.waktu_selesai}\nKlik untuk hapus"
+          onclick="deleteJadwal('${j.id}')">
+          <div class="en">${murid?.nama||'—'}</div>
+          <div class="eg">${guru?.nama||'—'}</div>
+          <div class="et">${j.waktu_mulai||''}${j.waktu_selesai?'–'+j.waktu_selesai:''}</div>
+        </div>`;
+      }).join('');
+      const evB=bloks.map(b=>{
+        if(!b.waktu_mulai)return'';
+        const top=evTopA(b.waktu_mulai);
+        const h=b.waktu_selesai?evHA(b.waktu_mulai,b.waktu_selesai):HPXA;
+        if(top<0||top>totalH)return'';
+        return `<div class="tg-ev admblok" style="top:${top}px;height:${h}px;">
+          <div class="en">🔒 ${b.guru_id==='all'?'Semua':namaGuru(b.guru_id)}</div>
+          <div class="et">${b.waktu_mulai}${b.waktu_selesai?'–'+b.waktu_selesai:''}</div>
+        </div>`;
+      }).join('');
+      return `<div class="tg-col${isToday?' today-col':''}" style="height:${totalH}px;">${evL}${evB}${nowLine}</div>`;
+    }).join('');
+
+  // Auto-scroll to current time
+  setTimeout(()=>{
+    const sc=document.getElementById('tgScrollAdmin');
+    if(!sc)return;
+    const scrollTo=nowMin>=TGA_S*60&&nowMin<TGA_E*60
+      ?Math.max(0,(nowMin-TGA_S*60-60)/60*HPXA):(8-TGA_S)*HPXA;
+    sc.scrollTop=scrollTo;
+  },80);
 }
 function openJadwalModal(){ openModal('jadwalOverlay'); }
 async function saveJadwal(){
