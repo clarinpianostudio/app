@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Clarin Music Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1e3a8a;--blue-med:#2563eb;--blue-light:#dbeafe;--blue-bg:#eff6ff;
+  --gold:#92400e;--gold-med:#d97706;--gold-bright:#f59e0b;--gold-light:#fef3c7;--gold-bg:#fffbeb;
+  --navy:#0f172a;--paper:#f8fafc;--border:#bfdbfe;--muted:#64748b;--white:#ffffff;
+  --green:#065f46;--green-med:#059669;--green-light:#d1fae5;
+  --red:#991b1b;--red-med:#dc2626;--red-light:#fee2e2;
+  --shadow:0 2px 12px rgba(30,58,138,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--navy);min-height:100vh;}
+
+/* Header */
+header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-med) 60%,#1d4ed8 100%);padding:1rem 1.5rem;}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:1280px;margin:0 auto;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.hdr-logo{width:46px;height:46px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.18);padding:5px;flex-shrink:0;border:1px solid rgba(255,255,255,.25);}
+.hdr-logo-fallback{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.hdr-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:500;}
+.hdr-title{font-family:'Playfair Display',serif;font-size:clamp(16px,3vw,21px);color:#fff;font-weight:600;}
+.hdr-badge{background:rgba(245,158,11,.25);color:#fde68a;border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;letter-spacing:.05em;}
+.btn-logout{color:rgba(255,255,255,.75);font-size:12px;font-weight:500;cursor:pointer;background:none;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:6px 12px;transition:.15s;}
+.btn-logout:hover{background:rgba(255,255,255,.15);color:#fff;}
+
+/* Tab bar */
+.tab-bar{background:var(--blue);border-bottom:1px solid rgba(255,255,255,.1);overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-inner{display:flex;max-width:1280px;margin:0 auto;padding:0 1rem;}
+.tab-btn{flex-shrink:0;padding:10px 14px;border:none;background:none;color:rgba(255,255,255,.55);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:.04em;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;}
+.tab-btn.active{color:#fbbf24;border-bottom-color:#fbbf24;}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.85);}
+
+main{max-width:1280px;margin:0 auto;padding:1.5rem 1.25rem 5rem;}
+.page{display:none;}.page.active{display:block;}
+
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:4px;}
+.stat-num{font-size:26px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;}
+.stat-num.gold{color:var(--gold-med);}
+.stat-num.green{color:var(--green-med);}
+.stat-num.red{color:var(--red-med);}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;}
+
+/* Section */
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.1rem;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:.75rem;border-bottom:1px solid var(--blue-light);}
+.sec-hdr-l{display:flex;align-items:center;gap:9px;}
+.sec-icon{width:30px;height:30px;background:var(--blue-light);color:var(--blue-med);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.sec-title{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label.lbl{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{font-family:'Inter',sans-serif;font-size:13.5px;color:var(--navy);background:var(--paper);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;width:100%;transition:.15s;outline:none;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-med);box-shadow:0 0 0 3px rgba(37,99,235,.14);background:#fff;}
+input::placeholder,textarea::placeholder{color:#94a3b8;}
+textarea{resize:vertical;min-height:70px;line-height:1.6;}
+select{cursor:pointer;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-primary{background:var(--blue-med);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25);}
+.btn-primary:hover:not(:disabled){background:var(--blue);}
+.btn-gold{background:var(--gold-med);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.25);}
+.btn-gold:hover:not(:disabled){background:var(--gold);}
+.btn-green{background:var(--green-med);color:#fff;}
+.btn-green:hover:not(:disabled){background:var(--green);}
+.btn-danger{background:var(--red-light);color:var(--red-med);border:1px solid #fecaca;}
+.btn-danger:hover:not(:disabled){background:var(--red-med);color:#fff;}
+.btn-ghost{background:var(--paper);color:var(--navy);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--blue-bg);border-color:var(--blue-light);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;margin:-4px;}
+table{width:100%;border-collapse:collapse;min-width:600px;}
+th{background:var(--blue-bg);color:var(--blue);font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;text-align:left;white-space:nowrap;}
+td{padding:9px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafbff;}
+.td-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-gold{background:var(--gold-light);color:var(--gold);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red-med);}
+.badge-gray{background:#f1f5f9;color:var(--muted);}
+.badge-orange{background:#fed7aa;color:#9a3412;}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:999;backdrop-filter:blur(3px);}
+.overlay.show{display:flex;align-items:center;justify-content:center;padding:1rem;}
+.modal{background:#fff;border-radius:18px;padding:1.75rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(15,23,42,.2);}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--blue);margin-bottom:1.25rem;}
+.modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;background:var(--paper);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.modal-close:hover{background:var(--blue-light);color:var(--blue);}
+.modal .field{margin-bottom:11px;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:.3s;z-index:9999;white-space:nowrap;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.success{background:var(--green-med);}
+#toast.error{background:var(--red-med);}
+
+/* Session indicator */
+.sesi-bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;}
+.sesi-fill{height:100%;background:linear-gradient(90deg,var(--blue-med),var(--gold-bright));border-radius:99px;transition:.3s;}
+.sesi-info{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* Birthday alert */
+.bday-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--blue-light);}
+.bday-item:last-child{border-bottom:none;}
+.bday-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue-light),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.bday-info{flex:1;}
+.bday-name{font-size:13px;font-weight:600;}
+.bday-date{font-size:11px;color:var(--muted);}
+.bday-tag{margin-left:auto;}
+
+/* Notif dot */
+.notif-dot{display:inline-block;width:7px;height:7px;background:#ef4444;border-radius:50%;margin-left:5px;vertical-align:middle;}
+
+/* Hari pills */
+.hari-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.hari-pill{padding:5px 12px;border-radius:99px;border:1.5px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;background:var(--paper);}
+.hari-pill.sel{background:var(--blue-med);color:#fff;border-color:var(--blue-med);}
+
+/* Absensi cards */
+.absen-card{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;gap:12px;flex-wrap:wrap;}
+.absen-info{flex:1;min-width:0;}
+.absen-name{font-size:14px;font-weight:600;}
+.absen-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.absen-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* Jadwal mingguan */
+.jadwal-hari{margin-bottom:1rem;}
+.jadwal-hari-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:6px;padding-left:4px;}
+.jadwal-slot{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border:1px solid var(--border);border-radius:9px;margin-bottom:5px;flex-wrap:wrap;}
+.jadwal-slot-time{font-size:12px;font-weight:700;color:var(--blue);min-width:80px;}
+.jadwal-slot-info{flex:1;min-width:0;}
+.jadwal-slot-name{font-size:13px;font-weight:500;}
+.jadwal-slot-meta{font-size:11px;color:var(--muted);}
+.jadwal-slot-actions{margin-left:auto;display:flex;gap:5px;}
+
+/* Tagihan status */
+.tagihan-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.tagihan-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:10px;}
+.tagihan-name{font-size:14px;font-weight:600;}
+.tagihan-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.tagihan-nominal{font-size:17px;font-weight:700;color:var(--gold);}
+.tagihan-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+
+/* Reschedule req */
+.req-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--gold-bright);}
+.req-card.accepted{border-left-color:var(--green-med);}
+.req-card.rejected{border-left-color:var(--red-med);}
+.req-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.req-name{font-size:14px;font-weight:600;}
+.req-detail{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.req-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* Alert box */
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;}
+.alert-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-light);}
+.alert-gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-light);}
+.alert-green{background:var(--green-light);color:var(--green);border:1px solid #a7f3d0;}
+
+@media(max-width:600px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .stats{grid-template-columns:1fr 1fr;}
+  main{padding:1rem .75rem 4rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="hdr">
+    <div class="hdr-l">
+      <img class="hdr-logo" src="logo.jpeg" alt="CMS"
+        onerror="this.outerHTML='<div class=\'hdr-logo-fallback\'>🎹</div>'">
+      <div>
+        <div class="hdr-sub">Clarin Music Studio</div>
+        <div class="hdr-title">Dashboard Admin</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="hdr-badge">ADMIN</span>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <div class="tab-inner">
+    <button class="tab-btn active" onclick="showTab('dashboard',this)">🏠 Dashboard</button>
+    <button class="tab-btn" onclick="showTab('murid',this)">👥 Murid</button>
+    <button class="tab-btn" onclick="showTab('guru',this)">🎹 Guru</button>
+    <button class="tab-btn" onclick="showTab('jadwal',this)">📅 Jadwal</button>
+    <button class="tab-btn" onclick="showTab('absensi',this)">✅ Absensi</button>
+    <button class="tab-btn" onclick="showTab('tagihan',this)">💰 Paket & Tagihan</button>
+    <button class="tab-btn" onclick="showTab('reschedule',this)" id="tabReschedule">🔄 Reschedule</button>
+    <button class="tab-btn" onclick="showTab('settings',this)">⚙️ Pengaturan</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+<div class="page active" id="page-dashboard">
+
+  <div class="stats" id="statsRow">
+    <div class="stat-card"><div class="stat-num" id="statMurid">—</div><div class="stat-lbl">Total Murid</div></div>
+    <div class="stat-card"><div class="stat-num gold" id="statGuru">—</div><div class="stat-lbl">Total Guru</div></div>
+    <div class="stat-card"><div class="stat-num green" id="statSesiHari">—</div><div class="stat-lbl">Les Hari Ini</div></div>
+    <div class="stat-card"><div class="stat-num red" id="statPending">—</div><div class="stat-lbl">Tagihan Pending</div></div>
+    <div class="stat-card"><div class="stat-num" id="statReschedule">—</div><div class="stat-lbl">Req. Reschedule</div></div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <!-- Ulang tahun -->
+      <div class="section">
+        <div class="sec-hdr">
+          <div class="sec-hdr-l">
+            <div class="sec-icon">🎂</div>
+            <div>
+              <div class="sec-title">Ulang Tahun Bulan Ini</div>
+            </div>
+          </div>
+        </div>
+        <div id="bdayList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+      </div>
+
+      <!-- Reschedule pending -->
+      <div class="section">
+        <div class="sec-hdr">
+          <div class="sec-hdr-l">
+            <div class="sec-icon">🔄</div>
+            <div><div class="sec-title">Reschedule Pending</div></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('reschedule',null)">Lihat Semua</button>
+        </div>
+        <div id="reschedulePending"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Les hari ini -->
+      <div class="section">
+        <div class="sec-hdr">
+          <div class="sec-hdr-l">
+            <div class="sec-icon">📋</div>
+            <div><div class="sec-title">Les Hari Ini</div><div class="sec-sub" id="todayDate"></div></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('absensi',null)">Isi Absensi</button>
+        </div>
+        <div id="lesHariIni"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+      </div>
+
+      <!-- Tagihan menunggu konfirmasi -->
+      <div class="section">
+        <div class="sec-hdr">
+          <div class="sec-hdr-l">
+            <div class="sec-icon">⏳</div>
+            <div><div class="sec-title">Menunggu Konfirmasi Bayar</div></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('tagihan',null)">Semua Tagihan</button>
+        </div>
+        <div id="tagKonfirmasi"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MURID ═══════════════════════ -->
+<div class="page" id="page-murid">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">👥</div>
+        <div><div class="sec-title">Data Murid</div></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openMuridModal()">+ Tambah Murid</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th><th>Kelas</th><th>Guru</th><th>Paket Aktif</th><th>Sesi</th><th>Instagram</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="muridTbody">
+          <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:2rem;">Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ GURU ═══════════════════════ -->
+<div class="page" id="page-guru">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🎹</div>
+        <div><div class="sec-title">Data Guru</div></div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="openGuruModal()">+ Tambah Guru</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Nama</th><th>Email</th><th>Tgl Lahir</th><th>Instagram</th><th>Jumlah Murid</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="guruTbody">
+          <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem;">Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ JADWAL ═══════════════════════ -->
+<div class="page" id="page-jadwal">
+  <div class="section" style="margin-bottom:1rem;">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📅</div>
+        <div><div class="sec-title">Jadwal Mingguan Tetap</div><div class="sec-sub">Jadwal rutin yang ditetapkan admin</div></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openJadwalModal()">+ Tambah Jadwal</button>
+    </div>
+
+    <!-- Filter guru -->
+    <div class="field" style="max-width:260px;margin-bottom:1rem;">
+      <label class="lbl">Filter Guru</label>
+      <select id="jadwalGuruFilter" onchange="renderJadwal()">
+        <option value="">Semua Guru</option>
+      </select>
+    </div>
+
+    <div id="jadwalList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+
+  <!-- Blokir waktu guru -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🔒</div>
+        <div><div class="sec-title">Blokir Waktu (Admin)</div><div class="sec-sub">Waktu yang dikunci, murid tidak bisa propose di slot ini</div></div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="openBlokModal()">+ Blokir Waktu</button>
+    </div>
+    <div id="blokList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ABSENSI ═══════════════════════ -->
+<div class="page" id="page-absensi">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">✅</div>
+        <div><div class="sec-title">Absensi Harian</div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="date" id="absenDate" style="width:160px;font-size:13px;padding:7px 10px;" onchange="loadAbsensi()">
+      </div>
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:1rem;">
+      ℹ️ Sesi akan otomatis berkurang saat absensi <strong>Hadir</strong> dikonfirmasi (salah satu dari 2 indikator).
+    </div>
+    <div id="absenList"><div style="color:var(--muted);font-size:13px;">Pilih tanggal untuk melihat jadwal...</div></div>
+  </div>
+
+  <!-- Rekap sesi murid -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📊</div>
+        <div><div class="sec-title">Rekap Sesi Murid</div><div class="sec-sub">Sisa sesi dari paket aktif</div></div>
+      </div>
+    </div>
+    <div id="rekapSesi"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAGIHAN ═══════════════════════ -->
+<div class="page" id="page-tagihan">
+
+  <!-- Buat tagihan -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📦</div>
+        <div><div class="sec-title">Buat Tagihan Paket</div></div>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="field">
+        <label class="lbl">Murid</label>
+        <select id="tagihanMurid" onchange="updateNominal()">
+          <option value="">— Pilih Murid —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl">Jenis Paket</label>
+        <select id="tagihanPaket" onchange="updateNominal()">
+          <option value="">— Pilih Paket —</option>
+          <option value="4">Paket 4 Sesi</option>
+          <option value="8">Paket 8 Sesi (+1 gratis 🎁)</option>
+          <option value="custom">Custom (isi manual)</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="field" id="customSesiField" style="display:none;">
+        <label class="lbl">Jumlah Sesi</label>
+        <input type="number" id="tagihanCustomSesi" min="1" placeholder="Contoh: 6">
+      </div>
+      <div class="field">
+        <label class="lbl">Nominal (Rp)</label>
+        <input type="number" id="tagihanNominal" placeholder="Contoh: 800000">
+      </div>
+      <div class="field">
+        <label class="lbl">Catatan (opsional)</label>
+        <input type="text" id="tagihanCatatan" placeholder="Keterangan tagihan...">
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="buatTagihan()">Buat & Kirim Tagihan ke Ortu</button>
+  </div>
+
+  <!-- Daftar tagihan -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">💰</div>
+        <div><div class="sec-title">Semua Tagihan</div></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <select id="tagFilterStatus" onchange="loadTagihan()" style="width:auto;font-size:12px;padding:6px 10px;">
+          <option value="">Semua Status</option>
+          <option value="menunggu">Menunggu Bayar</option>
+          <option value="dibayar">Bukti Terupload</option>
+          <option value="dikonfirmasi">Dikonfirmasi</option>
+        </select>
+      </div>
+    </div>
+    <div id="tagihanList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ RESCHEDULE ═══════════════════════ -->
+<div class="page" id="page-reschedule">
+  <div class="alert alert-gold" style="margin-bottom:1rem;">
+    ⚠️ Perubahan jadwal hanya dapat diproses <strong>minimal 24 jam</strong> sebelum jadwal les.
+    Izin yang sudah terkunci tidak dapat dibuka kembali.
+  </div>
+
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🔄</div>
+        <div><div class="sec-title">Permintaan Reschedule</div></div>
+      </div>
+      <select id="reschedFilter" onchange="loadReschedule()" style="width:auto;font-size:12px;padding:6px 10px;">
+        <option value="">Semua Status</option>
+        <option value="pending">Pending</option>
+        <option value="accepted">Diterima</option>
+        <option value="rejected">Ditolak</option>
+      </select>
+    </div>
+    <div id="rescheduleList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SETTINGS ═══════════════════════ -->
+<div class="page" id="page-settings">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">⚙️</div>
+        <div><div class="sec-title">Pengaturan Sistem</div></div>
+      </div>
+    </div>
+    <div style="max-width:500px;">
+      <div class="field" style="margin-bottom:14px;">
+        <label class="lbl">URL Google Apps Script</label>
+        <input type="text" id="setApiUrl" placeholder="https://script.google.com/macros/s/..." oninput="settingsDirty()">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Paste URL deployment Apps Script kamu di sini</div>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label class="lbl">PIN Admin</label>
+        <input type="password" id="setAdminPin" placeholder="PIN admin (min 4 digit)" oninput="settingsDirty()">
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label class="lbl">Nama Studio</label>
+        <input type="text" id="setNamaStudio" placeholder="Clarin Music Studio" oninput="settingsDirty()">
+      </div>
+      <div class="field" style="margin-bottom:16px;">
+        <label class="lbl">Tarif Per Sesi (Rp, default)</label>
+        <input type="number" id="setTarif" placeholder="200000" oninput="settingsDirty()">
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ════════ MODALS ════════ -->
+
+<!-- Modal Murid -->
+<div class="overlay" id="muridOverlay" onclick="if(event.target===this)closeModal('muridOverlay')">
+  <div class="modal">
+    <div class="modal-title" id="muridModalTitle">Tambah Murid</div>
+    <button class="modal-close" onclick="closeModal('muridOverlay')">✕</button>
+    <input type="hidden" id="muridId">
+    <div class="g2">
+      <div class="field"><label class="lbl">Nama Lengkap *</label><input id="mNama" placeholder="Nama murid..."></div>
+      <div class="field"><label class="lbl">Tanggal Lahir</label><input id="mTglLahir" type="date"></div>
+    </div>
+    <div class="field" style="margin-top:10px;"><label class="lbl">Alamat</label><textarea id="mAlamat" placeholder="Alamat lengkap..." style="min-height:60px;"></textarea></div>
+    <div class="g2" style="margin-top:10px;">
+      <div class="field"><label class="lbl">Email</label><input id="mEmail" type="email" placeholder="email@example.com"></div>
+      <div class="field"><label class="lbl">Instagram</label><input id="mIg" placeholder="@username"></div>
+    </div>
+    <div class="g2" style="margin-top:10px;">
+      <div class="field">
+        <label class="lbl">Guru *</label>
+        <select id="mGuru"><option value="">— Pilih Guru —</option></select>
+      </div>
+      <div class="field">
+        <label class="lbl">Jenis Kelas *</label>
+        <select id="mKelas">
+          <option value="">— Pilih Kelas —</option>
+          <option value="classical_piano_private">Classical Piano (Private)</option>
+          <option value="music_theory_private">Music Theory (Private)</option>
+          <option value="music_theory_group">Music Theory (Group Class)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px;">
+      <label class="lbl">PIN Orang Tua (untuk login portal ortu)</label>
+      <input id="mOrtuPin" type="password" placeholder="Min 4 digit angka">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:1.25rem;">
+      <button class="btn btn-primary" onclick="saveMurid()" style="flex:1;">Simpan</button>
+      <button class="btn btn-ghost" onclick="closeModal('muridOverlay')" style="flex:1;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Guru -->
+<div class="overlay" id="guruOverlay" onclick="if(event.target===this)closeModal('guruOverlay')">
+  <div class="modal">
+    <div class="modal-title" id="guruModalTitle">Tambah Guru</div>
+    <button class="modal-close" onclick="closeModal('guruOverlay')">✕</button>
+    <input type="hidden" id="guruId">
+    <div class="g2">
+      <div class="field"><label class="lbl">Nama Lengkap *</label><input id="gNama" placeholder="Nama guru..."></div>
+      <div class="field"><label class="lbl">Tanggal Lahir</label><input id="gTglLahir" type="date"></div>
+    </div>
+    <div class="field" style="margin-top:10px;"><label class="lbl">Alamat</label><textarea id="gAlamat" placeholder="Alamat lengkap..." style="min-height:60px;"></textarea></div>
+    <div class="g2" style="margin-top:10px;">
+      <div class="field"><label class="lbl">Email</label><input id="gEmail" type="email" placeholder="email@example.com"></div>
+      <div class="field"><label class="lbl">Instagram</label><input id="gIg" placeholder="@username"></div>
+    </div>
+    <div class="field" style="margin-top:10px;">
+      <label class="lbl">PIN Guru (untuk login portal guru)</label>
+      <input id="gPin" type="password" placeholder="Min 4 digit">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:1.25rem;">
+      <button class="btn btn-gold" onclick="saveGuru()" style="flex:1;">Simpan</button>
+      <button class="btn btn-ghost" onclick="closeModal('guruOverlay')" style="flex:1;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Jadwal -->
+<div class="overlay" id="jadwalOverlay" onclick="if(event.target===this)closeModal('jadwalOverlay')">
+  <div class="modal">
+    <div class="modal-title">Tambah Jadwal Mingguan</div>
+    <button class="modal-close" onclick="closeModal('jadwalOverlay')">✕</button>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Murid *</label>
+      <select id="jMurid"><option value="">— Pilih Murid —</option></select>
+    </div>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Guru *</label>
+      <select id="jGuru"><option value="">— Pilih Guru —</option></select>
+    </div>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Hari *</label>
+      <select id="jHari">
+        <option value="">— Pilih Hari —</option>
+        <option>Senin</option><option>Selasa</option><option>Rabu</option>
+        <option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+      </select>
+    </div>
+    <div class="g2" style="margin-bottom:10px;">
+      <div class="field"><label class="lbl">Waktu Mulai *</label><input id="jMulai" type="time"></div>
+      <div class="field"><label class="lbl">Waktu Selesai *</label><input id="jSelesai" type="time"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">Jenis Kelas</label>
+      <select id="jKelas">
+        <option value="classical_piano_private">Classical Piano (Private)</option>
+        <option value="music_theory_private">Music Theory (Private)</option>
+        <option value="music_theory_group">Music Theory (Group Class)</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="saveJadwal()" style="width:100%;">Simpan Jadwal</button>
+  </div>
+</div>
+
+<!-- Modal Blokir -->
+<div class="overlay" id="blokOverlay" onclick="if(event.target===this)closeModal('blokOverlay')">
+  <div class="modal">
+    <div class="modal-title">Blokir Waktu</div>
+    <button class="modal-close" onclick="closeModal('blokOverlay')">✕</button>
+    <div class="alert alert-gold" style="margin-bottom:12px;">🔒 Waktu yang diblokir admin tidak bisa digunakan untuk reschedule</div>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Guru</label>
+      <select id="bkGuru"><option value="all">Semua Guru</option></select>
+    </div>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Tanggal *</label>
+      <input id="bkTgl" type="date">
+    </div>
+    <div class="g2" style="margin-bottom:10px;">
+      <div class="field"><label class="lbl">Dari Pukul</label><input id="bkMulai" type="time"></div>
+      <div class="field"><label class="lbl">Sampai Pukul</label><input id="bkSelesai" type="time"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">Keterangan</label>
+      <input id="bkCatatan" placeholder="Rapat, libur, dll...">
+    </div>
+    <button class="btn btn-danger" onclick="saveBlokir()" style="width:100%;">🔒 Blokir Waktu Ini</button>
+  </div>
+</div>
+
+<!-- Modal Detail Murid Sesi -->
+<div class="overlay" id="sesiOverlay" onclick="if(event.target===this)closeModal('sesiOverlay')">
+  <div class="modal">
+    <div class="modal-title">Detail Sesi Murid</div>
+    <button class="modal-close" onclick="closeModal('sesiOverlay')">✕</button>
+    <div id="sesiDetail"></div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Bayar -->
+<div class="overlay" id="konfirmasiOverlay" onclick="if(event.target===this)closeModal('konfirmasiOverlay')">
+  <div class="modal">
+    <div class="modal-title">Konfirmasi Pembayaran</div>
+    <button class="modal-close" onclick="closeModal('konfirmasiOverlay')">✕</button>
+    <div id="konfirmasiDetail"></div>
+    <div style="display:flex;gap:10px;margin-top:1.25rem;">
+      <button class="btn btn-green" onclick="konfirmasiBayar()" style="flex:1;">✅ Konfirmasi Lunas</button>
+      <button class="btn btn-ghost" onclick="closeModal('konfirmasiOverlay')" style="flex:1;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+
+// ══════════════════════════════════════════════════════
+//  AUTH GUARD
+// ══════════════════════════════════════════════════════
+(function(){
+  if(sessionStorage.getItem('cms_role') !== 'admin'){
+    window.location.href = 'index.html';
+  }
+})();
+
+function logout(){
+  sessionStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let allMurid   = [];
+let allGuru    = [];
+let allJadwal  = [];
+let allTagihan = [];
+let allReschedule = [];
+let allBlokir  = [];
+let allSesi    = [];
+let konfirmasiId = null;
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function api(params){
+  if(!API_URL) return Promise.resolve(lsApi(params));
+  const qs = new URLSearchParams(params).toString();
+  return fetch(API_URL + '?' + qs).then(r=>r.json());
+}
+function apiPost(body){
+  if(!API_URL) return Promise.resolve(lsApiPost(body));
+  return fetch(API_URL, {method:'POST',body:JSON.stringify(body)}).then(r=>r.json());
+}
+
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(()=>{ t.className=''; }, 3000);
+}
+function showTab(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.tab-btn').forEach(b=>{ if(b.textContent.includes(id==='tagihan'?'Tagihan':id==='reschedule'?'Reschedule':id==='absensi'?'Absensi':id==='jadwal'?'Jadwal':id==='guru'?'Guru':id==='murid'?'Murid':id==='settings'?'Pengaturan':'Dashboard')) b.classList.add('active'); });
+  const loaders = {
+    dashboard: loadDashboard, murid: loadMurid, guru: loadGuru,
+    jadwal: loadJadwal, absensi: loadAbsensi, tagihan: loadTagihan,
+    reschedule: loadReschedule, settings: loadSettings
+  };
+  if(loaders[id]) loaders[id]();
+}
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function fmtKelas(k){
+  const m={classical_piano_private:'🎹 Classical Piano',music_theory_private:'📖 Theory (Private)',music_theory_group:'👥 Theory (Group)'};
+  return m[k]||k;
+}
+function fmtTgl(str){
+  if(!str) return '—';
+  const d=new Date(str);
+  return d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+}
+function fmtStatus(s){
+  const m={menunggu:'<span class="badge badge-orange">⏳ Menunggu Bayar</span>',dibayar:'<span class="badge badge-blue">📤 Bukti Terupload</span>',dikonfirmasi:'<span class="badge badge-green">✅ Dikonfirmasi</span>'};
+  return m[s]||`<span class="badge badge-gray">${s}</span>`;
+}
+function namaGuru(id){ return allGuru.find(g=>g.id===id)?.nama || id || '—'; }
+function namaMurid(id){ return allMurid.find(m=>m.id===id)?.nama || id || '—'; }
+
+// ══════════════════════════════════════════════════════
+//  LOCAL STORAGE FALLBACK (demo mode)
+// ══════════════════════════════════════════════════════
+function lsApi(p){
+  if(p.action==='get_guru')    return {data: JSON.parse(localStorage.getItem('cms_guru')||'[]')};
+  if(p.action==='get_murid')   return {data: JSON.parse(localStorage.getItem('cms_murid')||'[]')};
+  if(p.action==='get_jadwal')  return {data: JSON.parse(localStorage.getItem('cms_jadwal')||'[]')};
+  if(p.action==='get_tagihan') return {data: JSON.parse(localStorage.getItem('cms_tagihan')||'[]')};
+  if(p.action==='get_reschedule') return {data: JSON.parse(localStorage.getItem('cms_reschedule')||'[]')};
+  if(p.action==='get_blokir')  return {data: JSON.parse(localStorage.getItem('cms_blokir')||'[]')};
+  if(p.action==='get_sesi')    return {data: JSON.parse(localStorage.getItem('cms_sesi')||'[]')};
+  if(p.action==='get_settings')return {data: {admin_pin: localStorage.getItem('cms_admin_pin')||'1234', tarif: localStorage.getItem('cms_tarif')||'200000', nama_studio: 'Clarin Music Studio', api_url: ''}};
+  return {data:[]};
+}
+function lsApiPost(body){
+  const now = Date.now();
+  if(body.action==='save_guru'){
+    let list = JSON.parse(localStorage.getItem('cms_guru')||'[]');
+    if(body.id){ list = list.map(g=>g.id===body.id?{...g,...body}:g); }
+    else { list.push({...body, id:String(now)}); }
+    localStorage.setItem('cms_guru', JSON.stringify(list));
+    return {ok:true, id:body.id||String(now)};
+  }
+  if(body.action==='delete_guru'){
+    let list = JSON.parse(localStorage.getItem('cms_guru')||'[]').filter(g=>g.id!==body.id);
+    localStorage.setItem('cms_guru', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='save_murid'){
+    let list = JSON.parse(localStorage.getItem('cms_murid')||'[]');
+    if(body.id){ list = list.map(m=>m.id===body.id?{...m,...body}:m); }
+    else { list.push({...body, id:String(now)}); }
+    localStorage.setItem('cms_murid', JSON.stringify(list));
+    return {ok:true, id:body.id||String(now)};
+  }
+  if(body.action==='delete_murid'){
+    let list = JSON.parse(localStorage.getItem('cms_murid')||'[]').filter(m=>m.id!==body.id);
+    localStorage.setItem('cms_murid', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='save_jadwal'){
+    let list = JSON.parse(localStorage.getItem('cms_jadwal')||'[]');
+    list.push({...body, id:String(now)});
+    localStorage.setItem('cms_jadwal', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='delete_jadwal'){
+    let list = JSON.parse(localStorage.getItem('cms_jadwal')||'[]').filter(j=>j.id!==body.id);
+    localStorage.setItem('cms_jadwal', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='save_tagihan'){
+    let list = JSON.parse(localStorage.getItem('cms_tagihan')||'[]');
+    list.push({...body, id:String(now), status:'menunggu', tgl_tagihan: new Date().toISOString().slice(0,10)});
+    localStorage.setItem('cms_tagihan', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='konfirmasi_tagihan'){
+    let list = JSON.parse(localStorage.getItem('cms_tagihan')||'[]');
+    list = list.map(t=>t.id===body.id?{...t,status:'dikonfirmasi',tgl_konfirmasi:new Date().toISOString().slice(0,10)}:t);
+    localStorage.setItem('cms_tagihan', JSON.stringify(list));
+    // Activate paket
+    const tag = list.find(t=>t.id===body.id);
+    if(tag){
+      let pakets = JSON.parse(localStorage.getItem('cms_paket')||'[]');
+      pakets.push({id:String(now), murid_id:tag.murid_id, jenis:tag.jenis_paket, total_sesi:Number(tag.total_sesi), bonus:Number(tag.bonus||0), sesi_digunakan:0, status:'aktif', tgl_beli:new Date().toISOString().slice(0,10)});
+      localStorage.setItem('cms_paket', JSON.stringify(pakets));
+    }
+    return {ok:true};
+  }
+  if(body.action==='save_absensi'){
+    let list = JSON.parse(localStorage.getItem('cms_sesi')||'[]');
+    const idx = list.findIndex(s=>s.id===body.sesi_id);
+    if(idx>=0){
+      list[idx].status_absensi = body.status;
+      list[idx].absensi_admin = true;
+      if(body.status==='hadir') kurangiSesi(list[idx].murid_id);
+    } else {
+      list.push({id:String(now), murid_id:body.murid_id, guru_id:body.guru_id, tanggal:body.tanggal, status_absensi:body.status, absensi_admin:true, laporan_guru:false});
+      if(body.status==='hadir') kurangiSesi(body.murid_id);
+    }
+    localStorage.setItem('cms_sesi', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='respons_reschedule'){
+    let list = JSON.parse(localStorage.getItem('cms_reschedule')||'[]');
+    list = list.map(r=>r.id===body.id?{...r,status:body.status,catatan_guru:body.catatan||''}:r);
+    localStorage.setItem('cms_reschedule', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='save_blokir'){
+    let list = JSON.parse(localStorage.getItem('cms_blokir')||'[]');
+    list.push({...body, id:String(now), locked_by_admin:true});
+    localStorage.setItem('cms_blokir', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='delete_blokir'){
+    let list = JSON.parse(localStorage.getItem('cms_blokir')||'[]').filter(b=>b.id!==body.id);
+    localStorage.setItem('cms_blokir', JSON.stringify(list));
+    return {ok:true};
+  }
+  if(body.action==='save_settings'){
+    localStorage.setItem('cms_admin_pin', body.admin_pin||'1234');
+    localStorage.setItem('cms_tarif', body.tarif||'200000');
+    if(body.api_url) localStorage.setItem('cms_api_url', body.api_url);
+    return {ok:true};
+  }
+  return {ok:true};
+}
+function kurangiSesi(muridId){
+  let pakets = JSON.parse(localStorage.getItem('cms_paket')||'[]');
+  const aktif = pakets.find(p=>p.murid_id===muridId&&p.status==='aktif');
+  if(aktif){
+    aktif.sesi_digunakan = (aktif.sesi_digunakan||0) + 1;
+    const total = aktif.total_sesi + (aktif.bonus||0);
+    if(aktif.sesi_digunakan >= total) aktif.status = 'habis';
+    localStorage.setItem('cms_paket', JSON.stringify(pakets));
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════
+async function loadDashboard(){
+  const today = new Date();
+  document.getElementById('todayDate').textContent = today.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const [rGuru, rMurid, rTag, rRes, rSesi] = await Promise.all([
+    api({action:'get_guru'}), api({action:'get_murid'}),
+    api({action:'get_tagihan'}), api({action:'get_reschedule'}),
+    api({action:'get_sesi'})
+  ]);
+  allGuru     = rGuru.data||[];
+  allMurid    = rMurid.data||[];
+  allTagihan  = rTag.data||[];
+  allReschedule = rRes.data||[];
+  allSesi     = rSesi.data||[];
+
+  document.getElementById('statMurid').textContent     = allMurid.length;
+  document.getElementById('statGuru').textContent      = allGuru.length;
+  document.getElementById('statPending').textContent   = allTagihan.filter(t=>t.status==='menunggu'||t.status==='dibayar').length;
+  document.getElementById('statReschedule').textContent= allReschedule.filter(r=>r.status==='pending').length;
+
+  // Les hari ini
+  const hariIni = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][today.getDay()];
+  const jadwalRes = await api({action:'get_jadwal'});
+  allJadwal = jadwalRes.data||[];
+  const lesHari = allJadwal.filter(j=>j.hari===hariIni&&j.aktif!==false);
+  document.getElementById('statSesiHari').textContent = lesHari.length;
+
+  const lesEl = document.getElementById('lesHariIni');
+  if(lesHari.length===0){ lesEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada jadwal hari ini</div>'; }
+  else {
+    lesEl.innerHTML = lesHari.map(j=>`
+      <div class="absen-card">
+        <div class="absen-info">
+          <div class="absen-name">${namaMurid(j.murid_id)}</div>
+          <div class="absen-meta">${j.waktu_mulai}–${j.waktu_selesai} · ${namaGuru(j.guru_id)} · ${fmtKelas(j.kelas)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Ulang tahun bulan ini
+  const bulan = today.getMonth()+1;
+  const semuaOrang = [...allMurid.map(m=>({...m,tipe:'murid'})), ...allGuru.map(g=>({...g,tipe:'guru'}))];
+  const bdayList = semuaOrang.filter(o=>{
+    if(!o.tgl_lahir) return false;
+    const m = new Date(o.tgl_lahir).getMonth()+1;
+    return m===bulan;
+  }).sort((a,b)=>new Date(a.tgl_lahir).getDate()-new Date(b.tgl_lahir).getDate());
+  const bdayEl = document.getElementById('bdayList');
+  if(bdayList.length===0){ bdayEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada ulang tahun bulan ini 🎂</div>'; }
+  else {
+    bdayEl.innerHTML = bdayList.map(o=>{
+      const d = new Date(o.tgl_lahir);
+      const isToday = d.getDate()===today.getDate();
+      return `<div class="bday-item">
+        <div class="bday-avatar">${isToday?'🎂':'🎵'}</div>
+        <div class="bday-info">
+          <div class="bday-name">${o.nama} <span style="font-size:11px;color:var(--muted);">${o.tipe}</span></div>
+          <div class="bday-date">${d.toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</div>
+        </div>
+        <div class="bday-tag">${isToday?'<span class="badge badge-gold">🎂 Hari ini!</span>':''}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Reschedule pending
+  const resPending = allReschedule.filter(r=>r.status==='pending');
+  const resEl = document.getElementById('reschedulePending');
+  if(resPending.length===0){ resEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan pending ✓</div>'; }
+  else {
+    resEl.innerHTML = resPending.slice(0,3).map(r=>`
+      <div class="req-card" style="margin-bottom:8px;">
+        <div class="req-name">${namaMurid(r.murid_id)}</div>
+        <div class="req-detail">Dari: ${r.tgl_asli||'—'} → Proposed: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
+        <div class="req-actions">
+          <button class="btn btn-green btn-xs" onclick="responReschedule('${r.id}','accepted')">Terima</button>
+          <button class="btn btn-danger btn-xs" onclick="responReschedule('${r.id}','rejected')">Tolak</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // Tagihan menunggu konfirmasi
+  const tagKonf = allTagihan.filter(t=>t.status==='dibayar');
+  const tagEl = document.getElementById('tagKonfirmasi');
+  if(tagKonf.length===0){ tagEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada yang perlu dikonfirmasi ✓</div>'; }
+  else {
+    tagEl.innerHTML = tagKonf.slice(0,3).map(t=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--paper);border:1px solid var(--border);border-radius:9px;margin-bottom:7px;gap:8px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${namaMurid(t.murid_id)}</div>
+          <div style="font-size:11px;color:var(--muted);">Rp ${Number(t.nominal||0).toLocaleString('id-ID')} · ${t.jenis_paket||''}</div>
+        </div>
+        <button class="btn btn-green btn-xs" onclick="openKonfirmasi('${t.id}')">✅ Konfirmasi</button>
+      </div>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  MURID
+// ══════════════════════════════════════════════════════
+async function loadMurid(){
+  const [rM, rG] = await Promise.all([api({action:'get_murid'}), api({action:'get_guru'})]);
+  allMurid = rM.data||[];
+  allGuru  = rG.data||[];
+  renderMurid();
+}
+function renderMurid(){
+  const pakets = JSON.parse(localStorage.getItem('cms_paket')||'[]');
+  const sesis  = JSON.parse(localStorage.getItem('cms_sesi')||'[]');
+  const tbody = document.getElementById('muridTbody');
+  if(allMurid.length===0){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada murid</td></tr>'; return; }
+  tbody.innerHTML = allMurid.map(m=>{
+    const paket = pakets.find(p=>p.murid_id===m.id&&p.status==='aktif');
+    const digunakan = paket?.sesi_digunakan||0;
+    const total = paket?(paket.total_sesi+(paket.bonus||0)):0;
+    const sisa = paket?Math.max(0,total-digunakan):0;
+    const pct = paket?Math.round(digunakan/total*100):0;
+    return `<tr>
+      <td><div style="font-weight:600;">${m.nama}</div><div style="font-size:11px;color:var(--muted);">${m.email||'—'}</div></td>
+      <td>${fmtKelas(m.kelas)}</td>
+      <td>${namaGuru(m.guru_id)}</td>
+      <td>${paket?`<span class="badge badge-blue">${paket.jenis==='8'?'Paket 8':paket.jenis==='4'?'Paket 4':'Custom'}</span>`:'<span class="badge badge-gray">—</span>'}</td>
+      <td style="min-width:120px;">
+        ${paket?`<div class="sesi-bar"><div class="sesi-fill" style="width:${pct}%"></div></div>
+        <div class="sesi-info"><span>${digunakan}/${total} sesi</span><span style="color:${sisa<=2?'var(--red-med)':'var(--green-med)'};">${sisa} sisa</span></div>`:'<span style="color:var(--muted);font-size:12px;">Belum ada paket</span>'}
+      </td>
+      <td>${m.instagram||'—'}</td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-xs" onclick="openMuridModal('${m.id}')">Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteMurid('${m.id}')">Hapus</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function openMuridModal(id){
+  document.getElementById('muridId').value = id||'';
+  document.getElementById('muridModalTitle').textContent = id?'Edit Murid':'Tambah Murid';
+  // Populate guru select
+  const sel = document.getElementById('mGuru');
+  sel.innerHTML = '<option value="">— Pilih Guru —</option>' + allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
+  if(id){
+    const m = allMurid.find(x=>x.id===id);
+    if(m){
+      document.getElementById('mNama').value    = m.nama||'';
+      document.getElementById('mTglLahir').value= m.tgl_lahir||'';
+      document.getElementById('mAlamat').value  = m.alamat||'';
+      document.getElementById('mEmail').value   = m.email||'';
+      document.getElementById('mIg').value      = m.instagram||'';
+      document.getElementById('mGuru').value    = m.guru_id||'';
+      document.getElementById('mKelas').value   = m.kelas||'';
+      document.getElementById('mOrtuPin').value = m.ortu_pin||'';
+    }
+  } else {
+    ['mNama','mTglLahir','mAlamat','mEmail','mIg','mOrtuPin'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mGuru').value=''; document.getElementById('mKelas').value='';
+  }
+  openModal('muridOverlay');
+}
+async function saveMurid(){
+  const id   = document.getElementById('muridId').value;
+  const nama = document.getElementById('mNama').value.trim();
+  if(!nama){ showToast('Nama murid wajib diisi','error'); return; }
+  const body = {
+    action:'save_murid', id:id||undefined,
+    nama, tgl_lahir:document.getElementById('mTglLahir').value,
+    alamat:document.getElementById('mAlamat').value,
+    email:document.getElementById('mEmail').value,
+    instagram:document.getElementById('mIg').value,
+    guru_id:document.getElementById('mGuru').value,
+    kelas:document.getElementById('mKelas').value,
+    ortu_pin:document.getElementById('mOrtuPin').value,
+  };
+  await apiPost(body);
+  closeModal('muridOverlay');
+  showToast(id?'Murid diperbarui ✓':'Murid ditambahkan ✓','success');
+  loadMurid();
+}
+async function deleteMurid(id){
+  if(!confirm('Hapus murid ini?')) return;
+  await apiPost({action:'delete_murid', id});
+  showToast('Murid dihapus','');
+  loadMurid();
+}
+
+// ══════════════════════════════════════════════════════
+//  GURU
+// ══════════════════════════════════════════════════════
+async function loadGuru(){
+  const [rG, rM] = await Promise.all([api({action:'get_guru'}), api({action:'get_murid'})]);
+  allGuru  = rG.data||[];
+  allMurid = rM.data||[];
+  renderGuru();
+}
+function renderGuru(){
+  const tbody = document.getElementById('guruTbody');
+  if(allGuru.length===0){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada guru</td></tr>'; return; }
+  tbody.innerHTML = allGuru.map(g=>{
+    const jmlMurid = allMurid.filter(m=>m.guru_id===g.id).length;
+    return `<tr>
+      <td><div style="font-weight:600;">${g.nama}</div></td>
+      <td>${g.email||'—'}</td>
+      <td>${fmtTgl(g.tgl_lahir)}</td>
+      <td>${g.instagram||'—'}</td>
+      <td><span class="badge badge-blue">${jmlMurid} murid</span></td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-xs" onclick="openGuruModal('${g.id}')">Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteGuru('${g.id}')">Hapus</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function openGuruModal(id){
+  document.getElementById('guruId').value = id||'';
+  document.getElementById('guruModalTitle').textContent = id?'Edit Guru':'Tambah Guru';
+  if(id){
+    const g = allGuru.find(x=>x.id===id);
+    if(g){
+      document.getElementById('gNama').value    = g.nama||'';
+      document.getElementById('gTglLahir').value= g.tgl_lahir||'';
+      document.getElementById('gAlamat').value  = g.alamat||'';
+      document.getElementById('gEmail').value   = g.email||'';
+      document.getElementById('gIg').value      = g.instagram||'';
+      document.getElementById('gPin').value     = g.pin||'';
+    }
+  } else {
+    ['gNama','gTglLahir','gAlamat','gEmail','gIg','gPin'].forEach(id=>document.getElementById(id).value='');
+  }
+  openModal('guruOverlay');
+}
+async function saveGuru(){
+  const id   = document.getElementById('guruId').value;
+  const nama = document.getElementById('gNama').value.trim();
+  if(!nama){ showToast('Nama guru wajib diisi','error'); return; }
+  await apiPost({
+    action:'save_guru', id:id||undefined,
+    nama, tgl_lahir:document.getElementById('gTglLahir').value,
+    alamat:document.getElementById('gAlamat').value,
+    email:document.getElementById('gEmail').value,
+    instagram:document.getElementById('gIg').value,
+    pin:document.getElementById('gPin').value,
+  });
+  closeModal('guruOverlay');
+  showToast(id?'Guru diperbarui ✓':'Guru ditambahkan ✓','success');
+  loadGuru();
+}
+async function deleteGuru(id){
+  if(!confirm('Hapus guru ini? Data terkait murid tidak akan dihapus.')) return;
+  await apiPost({action:'delete_guru', id});
+  showToast('Guru dihapus');
+  loadGuru();
+}
+
+// ══════════════════════════════════════════════════════
+//  JADWAL
+// ══════════════════════════════════════════════════════
+async function loadJadwal(){
+  const [rJ, rG, rM, rB] = await Promise.all([
+    api({action:'get_jadwal'}), api({action:'get_guru'}),
+    api({action:'get_murid'}), api({action:'get_blokir'})
+  ]);
+  allJadwal = rJ.data||[];
+  allGuru   = rG.data||[];
+  allMurid  = rM.data||[];
+  allBlokir = rB.data||[];
+  // Populate guru filter
+  const filt = document.getElementById('jadwalGuruFilter');
+  filt.innerHTML='<option value="">Semua Guru</option>'+allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
+  // Populate modal selects
+  document.getElementById('jMurid').innerHTML='<option value="">— Pilih Murid —</option>'+allMurid.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('');
+  document.getElementById('jGuru').innerHTML='<option value="">— Pilih Guru —</option>'+allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
+  document.getElementById('bkGuru').innerHTML='<option value="all">Semua Guru</option>'+allGuru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('');
+  renderJadwal();
+  renderBlokir();
+}
+function renderJadwal(){
+  const filter = document.getElementById('jadwalGuruFilter').value;
+  const HARI = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  let list = allJadwal.filter(j=>j.aktif!==false);
+  if(filter) list = list.filter(j=>j.guru_id===filter);
+
+  const el = document.getElementById('jadwalList');
+  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada jadwal</div>'; return; }
+
+  const byHari = {};
+  HARI.forEach(h=>{ byHari[h] = list.filter(j=>j.hari===h).sort((a,b)=>a.waktu_mulai?.localeCompare(b.waktu_mulai)); });
+  el.innerHTML = HARI.filter(h=>byHari[h].length>0).map(h=>`
+    <div class="jadwal-hari">
+      <div class="jadwal-hari-title">${h}</div>
+      ${byHari[h].map(j=>`
+        <div class="jadwal-slot">
+          <div class="jadwal-slot-time">⏰ ${j.waktu_mulai}–${j.waktu_selesai}</div>
+          <div class="jadwal-slot-info">
+            <div class="jadwal-slot-name">${namaMurid(j.murid_id)}</div>
+            <div class="jadwal-slot-meta">${namaGuru(j.guru_id)} · ${fmtKelas(j.kelas)}</div>
+          </div>
+          <div class="jadwal-slot-actions">
+            <button class="btn btn-danger btn-xs" onclick="deleteJadwal('${j.id}')">Hapus</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+function openJadwalModal(){ openModal('jadwalOverlay'); }
+async function saveJadwal(){
+  const murid = document.getElementById('jMurid').value;
+  const guru  = document.getElementById('jGuru').value;
+  const hari  = document.getElementById('jHari').value;
+  const mulai = document.getElementById('jMulai').value;
+  const sls   = document.getElementById('jSelesai').value;
+  if(!murid||!guru||!hari||!mulai||!sls){ showToast('Lengkapi semua field','error'); return; }
+  await apiPost({action:'save_jadwal', murid_id:murid, guru_id:guru, hari, waktu_mulai:mulai, waktu_selesai:sls, kelas:document.getElementById('jKelas').value, aktif:true});
+  closeModal('jadwalOverlay');
+  showToast('Jadwal disimpan ✓','success');
+  loadJadwal();
+}
+async function deleteJadwal(id){
+  if(!confirm('Hapus jadwal ini?')) return;
+  await apiPost({action:'delete_jadwal', id});
+  showToast('Jadwal dihapus');
+  loadJadwal();
+}
+function renderBlokir(){
+  const el = document.getElementById('blokList');
+  if(allBlokir.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada waktu yang diblokir</div>'; return; }
+  el.innerHTML = allBlokir.map(b=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--red-light);border:1px solid #fecaca;border-radius:9px;margin-bottom:7px;gap:10px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:13px;font-weight:600;">🔒 ${b.tgl||'—'} ${b.waktu_mulai?b.waktu_mulai+' – '+b.waktu_selesai:''}</div>
+        <div style="font-size:11px;color:var(--muted);">${b.guru_id==='all'?'Semua Guru':namaGuru(b.guru_id)} · ${b.catatan||''}</div>
+      </div>
+      <button class="btn btn-danger btn-xs" onclick="deleteBlokir('${b.id}')">Hapus</button>
+    </div>`).join('');
+}
+function openBlokModal(){ openModal('blokOverlay'); }
+async function saveBlokir(){
+  const tgl = document.getElementById('bkTgl').value;
+  if(!tgl){ showToast('Pilih tanggal dulu','error'); return; }
+  await apiPost({action:'save_blokir', guru_id:document.getElementById('bkGuru').value, tgl, waktu_mulai:document.getElementById('bkMulai').value, waktu_selesai:document.getElementById('bkSelesai').value, catatan:document.getElementById('bkCatatan').value});
+  closeModal('blokOverlay');
+  showToast('Waktu diblokir 🔒','');
+  loadJadwal();
+}
+async function deleteBlokir(id){
+  if(!confirm('Buka blokir waktu ini?')) return;
+  await apiPost({action:'delete_blokir', id});
+  showToast('Blokir dihapus');
+  loadJadwal();
+}
+
+// ══════════════════════════════════════════════════════
+//  ABSENSI
+// ══════════════════════════════════════════════════════
+async function loadAbsensi(){
+  const dateEl = document.getElementById('absenDate');
+  if(!dateEl.value){ dateEl.value = new Date().toISOString().slice(0,10); }
+  const tgl = dateEl.value;
+  if(!tgl) return;
+
+  const date = new Date(tgl);
+  const hariNames = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const hari = hariNames[date.getDay()];
+
+  const [rJ, rG, rM, rS] = await Promise.all([
+    api({action:'get_jadwal'}), api({action:'get_guru'}),
+    api({action:'get_murid'}), api({action:'get_sesi'})
+  ]);
+  allJadwal = rJ.data||[];
+  allGuru   = rG.data||[];
+  allMurid  = rM.data||[];
+  allSesi   = rS.data||[];
+
+  const jadwalHari = allJadwal.filter(j=>j.hari===hari&&j.aktif!==false);
+  const el = document.getElementById('absenList');
+
+  if(jadwalHari.length===0){
+    el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada jadwal les pada hari ini</div>';
+  } else {
+    el.innerHTML = jadwalHari.map(j=>{
+      const sesi = allSesi.find(s=>s.murid_id===j.murid_id&&s.tanggal===tgl);
+      const status = sesi?.status_absensi||'pending';
+      const statusBadge = {hadir:'<span class="badge badge-green">✅ Hadir</span>',izin:'<span class="badge badge-orange">🙏 Izin</span>',cancelled:'<span class="badge badge-red">❌ Batal</span>',pending:'<span class="badge badge-gray">— Belum</span>'}[status];
+      return `<div class="absen-card">
+        <div class="absen-info">
+          <div class="absen-name">${namaMurid(j.murid_id)}</div>
+          <div class="absen-meta">${j.waktu_mulai}–${j.waktu_selesai} · ${namaGuru(j.guru_id)} · ${fmtKelas(j.kelas)}</div>
+          <div style="margin-top:4px;">${statusBadge}</div>
+        </div>
+        <div class="absen-actions">
+          <button class="btn btn-green btn-xs" onclick="submitAbsensi('${j.id||j.murid_id}','${j.murid_id}','${j.guru_id}','${tgl}','hadir')">✅ Hadir</button>
+          <button class="btn btn-ghost btn-xs" onclick="submitAbsensi('${j.id||j.murid_id}','${j.murid_id}','${j.guru_id}','${tgl}','izin')">🙏 Izin</button>
+          <button class="btn btn-danger btn-xs" onclick="submitAbsensi('${j.id||j.murid_id}','${j.murid_id}','${j.guru_id}','${tgl}','cancelled')">❌ Batal</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Rekap sesi
+  renderRekapSesi();
+}
+async function submitAbsensi(sesiId, muridId, guruId, tgl, status){
+  await apiPost({action:'save_absensi', sesi_id:sesiId, murid_id:muridId, guru_id:guruId, tanggal:tgl, status});
+  showToast(`Absensi: ${status==='hadir'?'Hadir ✅':status==='izin'?'Izin 🙏':'Batal ❌'}`, status==='hadir'?'success':'');
+  loadAbsensi();
+}
+function renderRekapSesi(){
+  const pakets = JSON.parse(localStorage.getItem('cms_paket')||'[]');
+  const el = document.getElementById('rekapSesi');
+  if(allMurid.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada data murid</div>'; return; }
+  el.innerHTML = allMurid.map(m=>{
+    const paket = pakets.find(p=>p.murid_id===m.id&&p.status==='aktif');
+    if(!paket) return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="font-weight:500;">${m.nama}</span><span style="color:var(--muted);">Belum ada paket aktif</span></div>`;
+    const total = paket.total_sesi+(paket.bonus||0);
+    const sisa  = Math.max(0,total-(paket.sesi_digunakan||0));
+    const pct   = Math.round((paket.sesi_digunakan||0)/total*100);
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:500;margin-bottom:5px;">
+        <span>${m.nama}</span>
+        <span style="color:${sisa<=2?'var(--red-med)':'var(--green-med)'};">${sisa} sesi sisa</span>
+      </div>
+      <div class="sesi-bar"><div class="sesi-fill" style="width:${pct}%"></div></div>
+      <div class="sesi-info"><span>${paket.sesi_digunakan||0} digunakan dari ${total} total</span><span class="badge ${sisa<=2?'badge-red':'badge-green'}" style="padding:1px 6px;">${sisa<=2?'⚠️ Hampir habis':'OK'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  TAGIHAN
+// ══════════════════════════════════════════════════════
+async function loadTagihan(){
+  const [rT, rM] = await Promise.all([api({action:'get_tagihan'}), api({action:'get_murid'})]);
+  allTagihan = rT.data||[];
+  allMurid   = rM.data||[];
+  // Populate murid select
+  document.getElementById('tagihanMurid').innerHTML='<option value="">— Pilih Murid —</option>'+allMurid.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('');
+  renderTagihan();
+}
+function renderTagihan(){
+  const filter = document.getElementById('tagFilterStatus').value;
+  let list = [...allTagihan].reverse();
+  if(filter) list = list.filter(t=>t.status===filter);
+  const el = document.getElementById('tagihanList');
+  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada tagihan</div>'; return; }
+  el.innerHTML = list.map(t=>`
+    <div class="tagihan-card">
+      <div class="tagihan-top">
+        <div>
+          <div class="tagihan-name">${namaMurid(t.murid_id)}</div>
+          <div class="tagihan-meta">${t.jenis_paket==='8'?'Paket 8 Sesi (+1 gratis)':t.jenis_paket==='4'?'Paket 4 Sesi':'Custom '+(t.total_sesi||'')+' Sesi'} · ${t.tgl_tagihan||'—'}</div>
+          ${t.catatan?`<div style="font-size:11px;color:var(--muted);margin-top:3px;">${t.catatan}</div>`:''}
+        </div>
+        <div style="text-align:right;">
+          <div class="tagihan-nominal">Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
+          <div style="margin-top:5px;">${fmtStatus(t.status)}</div>
+        </div>
+      </div>
+      ${t.bukti_bayar?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">📎 Bukti: ${t.bukti_bayar}</div>`:''}
+      <div class="tagihan-actions">
+        ${t.status==='dibayar'?`<button class="btn btn-green btn-xs" onclick="openKonfirmasi('${t.id}')">✅ Konfirmasi Lunas</button>`:''}
+        ${t.status==='menunggu'?'<span style="font-size:11px;color:var(--muted);">Menunggu pembayaran dari orang tua</span>':''}
+        ${t.status==='dikonfirmasi'?'<span style="font-size:11px;color:var(--green-med);">✅ Paket aktif</span>':''}
+      </div>
+    </div>`).join('');
+}
+function updateNominal(){
+  const paket = document.getElementById('tagihanPaket').value;
+  const cf = document.getElementById('customSesiField');
+  const tarif = Number(localStorage.getItem('cms_tarif')||200000);
+  if(paket==='4')      { document.getElementById('tagihanNominal').value=tarif*4; cf.style.display='none'; }
+  else if(paket==='8') { document.getElementById('tagihanNominal').value=tarif*8; cf.style.display='none'; }
+  else if(paket==='custom') { document.getElementById('tagihanNominal').value=''; cf.style.display='block'; }
+  else { document.getElementById('tagihanNominal').value=''; cf.style.display='none'; }
+}
+async function buatTagihan(){
+  const muridId = document.getElementById('tagihanMurid').value;
+  const paket   = document.getElementById('tagihanPaket').value;
+  const nominal = document.getElementById('tagihanNominal').value;
+  if(!muridId||!paket||!nominal){ showToast('Lengkapi semua field','error'); return; }
+  const totalSesi = paket==='4'?4:paket==='8'?8:Number(document.getElementById('tagihanCustomSesi').value)||0;
+  const bonus = paket==='8'?1:0;
+  await apiPost({action:'save_tagihan', murid_id:muridId, jenis_paket:paket, total_sesi:totalSesi, bonus, nominal, catatan:document.getElementById('tagihanCatatan').value});
+  showToast('Tagihan dibuat & dikirim ke portal ortu ✓','success');
+  document.getElementById('tagihanMurid').value='';
+  document.getElementById('tagihanPaket').value='';
+  document.getElementById('tagihanNominal').value='';
+  document.getElementById('tagihanCatatan').value='';
+  loadTagihan();
+}
+function openKonfirmasi(id){
+  konfirmasiId = id;
+  const t = allTagihan.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('konfirmasiDetail').innerHTML=`
+    <div style="background:var(--green-light);padding:16px;border-radius:12px;margin-bottom:1rem;">
+      <div style="font-size:14px;font-weight:600;color:var(--green);">Konfirmasi Pembayaran</div>
+      <div style="font-size:13px;margin-top:6px;"><b>Murid:</b> ${namaMurid(t.murid_id)}</div>
+      <div style="font-size:13px;"><b>Paket:</b> ${t.jenis_paket==='8'?'8 Sesi (+1 bonus)':t.jenis_paket==='4'?'4 Sesi':'Custom'}</div>
+      <div style="font-size:13px;"><b>Nominal:</b> Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
+      ${t.bukti_bayar?`<div style="font-size:12px;color:var(--green);margin-top:4px;">📎 Bukti: ${t.bukti_bayar}</div>`:''}
+    </div>
+    <div style="font-size:13px;color:var(--muted);">Setelah konfirmasi, paket sesi murid akan aktif dan orang tua bisa menambah jadwal.</div>`;
+  openModal('konfirmasiOverlay');
+}
+async function konfirmasiBayar(){
+  if(!konfirmasiId) return;
+  await apiPost({action:'konfirmasi_tagihan', id:konfirmasiId});
+  closeModal('konfirmasiOverlay');
+  showToast('Pembayaran dikonfirmasi ✓ Paket aktif!','success');
+  loadTagihan();
+}
+
+// ══════════════════════════════════════════════════════
+//  RESCHEDULE
+// ══════════════════════════════════════════════════════
+async function loadReschedule(){
+  const [rR, rM, rG] = await Promise.all([api({action:'get_reschedule'}), api({action:'get_murid'}), api({action:'get_guru'})]);
+  allReschedule = rR.data||[];
+  allMurid = rM.data||[];
+  allGuru  = rG.data||[];
+  renderReschedule();
+}
+function renderReschedule(){
+  const filter = document.getElementById('reschedFilter').value;
+  let list = [...allReschedule].reverse();
+  if(filter) list = list.filter(r=>r.status===filter);
+  const el = document.getElementById('rescheduleList');
+  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan reschedule</div>'; return; }
+  el.innerHTML = list.map(r=>{
+    const cls = r.status==='accepted'?'accepted':r.status==='rejected'?'rejected':'';
+    const statusBadge = {pending:'<span class="badge badge-orange">⏳ Pending</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'}[r.status];
+    return `<div class="req-card ${cls}">
+      <div class="req-top">
+        <div>
+          <div class="req-name">${namaMurid(r.murid_id)}</div>
+          <div style="font-size:11px;color:var(--muted);">Guru: ${namaGuru(r.guru_id)}</div>
+        </div>
+        ${statusBadge}
+      </div>
+      <div class="req-detail">📅 Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
+      <div class="req-detail">🔄 Usulan baru: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
+      ${r.alasan?`<div class="req-detail">💬 Alasan: ${r.alasan}</div>`:''}
+      ${r.status==='pending'?`<div class="req-actions">
+        <button class="btn btn-green btn-xs" onclick="responReschedule('${r.id}','accepted')">✅ Terima</button>
+        <button class="btn btn-danger btn-xs" onclick="responReschedule('${r.id}','rejected')">❌ Tolak</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+async function responReschedule(id, status){
+  // Check 24h rule
+  const r = allReschedule.find(x=>x.id===id);
+  if(r&&r.tgl_asli){
+    const lesDate = new Date(r.tgl_asli);
+    const now = new Date();
+    const diffH = (lesDate-now)/(1000*60*60);
+    if(diffH < 24 && status==='accepted'){
+      showToast('⚠️ Kurang dari 24 jam sebelum les, tidak bisa diterima','error');
+      return;
+    }
+  }
+  await apiPost({action:'respons_reschedule', id, status});
+  showToast(status==='accepted'?'Reschedule diterima ✓':'Reschedule ditolak', status==='accepted'?'success':'');
+  loadReschedule();
+  loadDashboard();
+}
+
+// ══════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════
+async function loadSettings(){
+  const r = await api({action:'get_settings'});
+  const d = r.data||{};
+  document.getElementById('setApiUrl').value   = localStorage.getItem('cms_api_url')||d.api_url||'';
+  document.getElementById('setAdminPin').value = localStorage.getItem('cms_admin_pin')||d.admin_pin||'';
+  document.getElementById('setNamaStudio').value = d.nama_studio||'Clarin Music Studio';
+  document.getElementById('setTarif').value    = localStorage.getItem('cms_tarif')||d.tarif||'200000';
+}
+function settingsDirty(){}
+async function saveSettings(){
+  const url = document.getElementById('setApiUrl').value.trim();
+  const pin = document.getElementById('setAdminPin').value.trim();
+  const tarif = document.getElementById('setTarif').value.trim();
+  await apiPost({action:'save_settings', api_url:url, admin_pin:pin, tarif, nama_studio:document.getElementById('setNamaStudio').value});
+  if(url) localStorage.setItem('cms_api_url',url);
+  if(pin) localStorage.setItem('cms_admin_pin',pin);
+  if(tarif) localStorage.setItem('cms_tarif',tarif);
+  showToast('Pengaturan disimpan ✓','success');
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('absenDate').value = new Date().toISOString().slice(0,10);
+  loadDashboard();
+});
+</script>
+</body>
+</html>

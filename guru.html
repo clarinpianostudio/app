@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Guru — Clarin Music Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1e3a8a;--blue-med:#2563eb;--blue-light:#dbeafe;--blue-bg:#eff6ff;
+  --gold:#92400e;--gold-med:#d97706;--gold-bright:#f59e0b;--gold-light:#fef3c7;--gold-bg:#fffbeb;
+  --navy:#0f172a;--paper:#f8fafc;--border:#bfdbfe;--muted:#64748b;--white:#fff;
+  --green:#065f46;--green-med:#059669;--green-light:#d1fae5;
+  --red:#991b1b;--red-med:#dc2626;--red-light:#fee2e2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--navy);min-height:100vh;}
+
+header{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-med) 60%,var(--gold-bright) 100%);padding:1rem 1.5rem;}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:900px;margin:0 auto;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.hdr-logo{width:44px;height:44px;object-fit:contain;border-radius:11px;background:rgba(255,255,255,.2);padding:4px;flex-shrink:0;}
+.hdr-logo-fb{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.hdr-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.65);}
+.hdr-title{font-family:'Playfair Display',serif;font-size:clamp(15px,3vw,20px);color:#fff;}
+.hdr-guru{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;}
+.btn-logout{color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;background:none;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:6px 12px;}
+.btn-logout:hover{background:rgba(255,255,255,.15);}
+
+.tab-bar{background:var(--gold);border-bottom:1px solid rgba(0,0,0,.1);overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-inner{display:flex;max-width:900px;margin:0 auto;padding:0 .75rem;}
+.tab-btn{flex-shrink:0;padding:10px 14px;border:none;background:none;color:rgba(255,255,255,.6);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:.04em;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;}
+.tab-btn.active{color:#fff;border-bottom-color:#fff;}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.85);}
+
+main{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 5rem;}
+.page{display:none;}.page.active{display:block;}
+
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.1rem;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:.75rem;border-bottom:1px solid var(--gold-light);}
+.sec-hdr-l{display:flex;align-items:center;gap:9px;}
+.sec-icon{width:30px;height:30px;background:var(--gold-light);color:var(--gold-med);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.sec-title{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label.lbl{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{font-family:'Inter',sans-serif;font-size:13.5px;color:var(--navy);background:var(--paper);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;width:100%;transition:.15s;outline:none;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold-med);box-shadow:0 0 0 3px rgba(217,119,6,.14);background:#fff;}
+input::placeholder,textarea::placeholder{color:#94a3b8;}
+textarea{resize:vertical;min-height:80px;line-height:1.6;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-primary{background:var(--blue-med);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--blue);}
+.btn-gold{background:var(--gold-med);color:#fff;}
+.btn-gold:hover:not(:disabled){background:var(--gold);}
+.btn-green{background:var(--green-med);color:#fff;}
+.btn-green:hover:not(:disabled){background:var(--green);}
+.btn-danger{background:var(--red-light);color:var(--red-med);border:1px solid #fecaca;}
+.btn-danger:hover:not(:disabled){background:var(--red-med);color:#fff;}
+.btn-ghost{background:var(--paper);color:var(--navy);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--blue-bg);}
+.btn-sm{padding:7px 14px;font-size:12.5px;}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
+
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-gold{background:var(--gold-light);color:var(--gold);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red-med);}
+.badge-gray{background:#f1f5f9;color:var(--muted);}
+.badge-orange{background:#fed7aa;color:#9a3412;}
+
+/* Jadwal kalender mingguan */
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.week-label{font-size:14px;font-weight:600;flex:1;text-align:center;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:.75rem;}
+.day-col{min-width:0;}
+.day-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;padding:4px 2px;background:var(--gold-bg);border-radius:5px;margin-bottom:4px;}
+.day-head.today{background:var(--gold-light);color:var(--gold);}
+.slot{background:var(--blue-bg);border:1px solid var(--blue-light);border-radius:7px;padding:5px 6px;margin-bottom:4px;font-size:10px;cursor:default;}
+.slot .s-name{font-weight:600;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.slot .s-time{color:var(--muted);}
+.slot.blocked{background:var(--red-light);border-color:#fecaca;}
+.slot.blocked .s-name{color:var(--red-med);}
+.slot.my-block{background:var(--gold-bg);border-color:var(--gold-light);}
+
+/* Laporan form */
+.laporan-preview{background:linear-gradient(135deg,var(--blue) 0%,#1d4ed8 100%);border-radius:14px;padding:1.5rem;color:#fff;margin-top:1rem;}
+.lp-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:1rem;}
+.lp-section{margin-bottom:1rem;}
+.lp-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.lp-content{font-size:13px;line-height:1.7;color:rgba(255,255,255,.92);}
+
+/* Absensi cards */
+.absen-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.ac-info{flex:1;}
+.ac-name{font-size:14px;font-weight:600;}
+.ac-meta{font-size:11px;color:var(--muted);}
+.ac-actions{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* Notifikasi */
+.notif-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--gold-bright);}
+.notif-card.accepted{border-left-color:var(--green-med);}
+.notif-card.rejected{border-left-color:var(--red-med);}
+.notif-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.notif-name{font-size:14px;font-weight:600;}
+.notif-detail{font-size:12px;color:var(--muted);margin-bottom:6px;}
+
+/* Birthday list */
+.bday-card{display:flex;align-items:center;gap:12px;padding:12px;background:linear-gradient(135deg,var(--gold-bg),#fff);border:1px solid var(--gold-light);border-radius:12px;margin-bottom:8px;}
+.bday-ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold-light),var(--blue-light));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* Blokir waktu */
+.blok-card{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--gold-bg);border:1px solid var(--gold-light);border-radius:9px;margin-bottom:7px;flex-wrap:wrap;gap:8px;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:.3s;z-index:9999;white-space:nowrap;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.success{background:var(--green-med);}
+#toast.error{background:var(--red-med);}
+
+/* Overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:999;backdrop-filter:blur(3px);}
+.overlay.show{display:flex;align-items:center;justify-content:center;padding:1rem;}
+.modal{background:#fff;border-radius:18px;padding:1.75rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--blue);margin-bottom:1.25rem;}
+.modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;background:var(--paper);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;}
+.alert-gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-light);}
+.alert-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-light);}
+
+@media(max-width:600px){
+  .g2{grid-template-columns:1fr;}
+  main{padding:1rem .75rem 4rem;}
+  .week-grid{grid-template-columns:repeat(7,1fr);font-size:9px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="hdr-l">
+      <img class="hdr-logo" src="logo.jpeg" alt="CMS"
+        onerror="this.outerHTML='<div class=\'hdr-logo-fb\'>🎹</div>'">
+      <div>
+        <div class="hdr-sub">Clarin Music Studio</div>
+        <div class="hdr-title">Portal Guru</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="hdr-guru" id="namaGuruHdr">—</span>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab-inner">
+    <button class="tab-btn active" onclick="showTab('jadwal',this)">📅 Jadwal Saya</button>
+    <button class="tab-btn" onclick="showTab('laporan',this)">📝 Laporan Murid</button>
+    <button class="tab-btn" onclick="showTab('ultah',this)">🎂 Ulang Tahun</button>
+    <button class="tab-btn" onclick="showTab('notif',this)" id="tabNotif">🔔 Notifikasi</button>
+    <button class="tab-btn" onclick="showTab('blokir',this)">🔒 Blokir Waktu</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════ JADWAL ═══════════════════════ -->
+<div class="page active" id="page-jadwal">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📅</div>
+        <div>
+          <div class="sec-title">Jadwal Saya</div>
+          <div class="sec-sub">Klik slot merah = murid bisa propose reschedule, kuning = waktu saya blokir</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Week navigation -->
+    <div class="week-nav">
+      <button class="btn btn-ghost btn-xs" onclick="changeWeek(-1)">← Prev</button>
+      <span class="week-label" id="weekLabel"></span>
+      <button class="btn btn-ghost btn-xs" onclick="changeWeek(1)">Next →</button>
+    </div>
+
+    <div class="week-grid" id="weekGrid"></div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);">
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--blue-bg);border:1px solid var(--blue-light);border-radius:2px;margin-right:4px;"></span>Les murid</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--gold-bg);border:1px solid var(--gold-light);border-radius:2px;margin-right:4px;"></span>Blokir saya</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--red-light);border:1px solid #fecaca;border-radius:2px;margin-right:4px;"></span>Blokir admin</span>
+    </div>
+  </div>
+
+  <!-- Les hari ini -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">✅</div>
+        <div><div class="sec-title">Les Hari Ini</div></div>
+      </div>
+    </div>
+    <div id="lesHariIni"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LAPORAN ═══════════════════════ -->
+<div class="page" id="page-laporan">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📝</div>
+        <div><div class="sec-title">Buat Laporan Murid</div><div class="sec-sub">Setiap laporan terkirim = 1 indikator sesi berkurang</div></div>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="field">
+        <label class="lbl">Pilih Murid *</label>
+        <select id="lapMurid" onchange="onMuridChange()">
+          <option value="">— Pilih Murid —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl">Tanggal Les *</label>
+        <input id="lapTgl" type="date">
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label class="lbl">📖 Today's Lesson</label>
+      <textarea id="lapLesson" placeholder="Materi yang diajarkan hari ini (repertoire, teknik, teori...)"></textarea>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label class="lbl">🎯 What to Practice</label>
+      <textarea id="lapPractice" placeholder="Latihan yang perlu dilakukan murid di rumah..."></textarea>
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label class="lbl">🏆 Upcoming Event / Goals</label>
+      <textarea id="lapGoals" placeholder="Target, ujian, recital, atau event mendatang..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="previewLaporan()">👁 Preview</button>
+      <button class="btn btn-primary" onclick="simpanLaporan()">💾 Simpan Laporan</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div id="laporanPreviewWrap" style="display:none;">
+    <div class="laporan-preview" id="laporanPreview"></div>
+  </div>
+
+  <!-- Riwayat laporan -->
+  <div class="section" style="margin-top:1rem;">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📂</div>
+        <div><div class="sec-title">Riwayat Laporan</div></div>
+      </div>
+      <select id="lapFilterMurid" onchange="loadRiwayatLaporan()" style="width:auto;font-size:12px;padding:6px 10px;">
+        <option value="">Semua Murid</option>
+      </select>
+    </div>
+    <div id="riwayatLaporan"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ULTAH ═══════════════════════ -->
+<div class="page" id="page-ultah">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🎂</div>
+        <div><div class="sec-title">Ulang Tahun Murid</div></div>
+      </div>
+    </div>
+    <div id="ultahList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ NOTIFIKASI ═══════════════════════ -->
+<div class="page" id="page-notif">
+  <div class="alert alert-gold" style="margin-bottom:1rem;">
+    ⚠️ Reschedule hanya bisa diterima jika minimal <strong>24 jam</strong> sebelum jadwal les asli.
+  </div>
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🔔</div>
+        <div><div class="sec-title">Permintaan Reschedule</div></div>
+      </div>
+    </div>
+    <div id="notifList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ BLOKIR WAKTU ═══════════════════════ -->
+<div class="page" id="page-blokir">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🔒</div>
+        <div><div class="sec-title">Blokir Waktu Saya</div><div class="sec-sub">Murid tidak bisa propose jadwal di waktu ini</div></div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="openBlokModal()">+ Tambah Blokir</button>
+    </div>
+    <div id="blokirList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+</main>
+
+<!-- Modal blokir -->
+<div class="overlay" id="blokOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Blokir Waktu Saya</div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="field" style="margin-bottom:10px;">
+      <label class="lbl">Tanggal *</label>
+      <input id="bkTgl" type="date">
+    </div>
+    <div class="g2" style="margin-bottom:10px;">
+      <div class="field"><label class="lbl">Dari Pukul</label><input id="bkMulai" type="time"></div>
+      <div class="field"><label class="lbl">Sampai Pukul</label><input id="bkSelesai" type="time"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">Keterangan</label>
+      <input id="bkCatatan" placeholder="Rapat, acara keluarga, dll...">
+    </div>
+    <button class="btn btn-gold" onclick="saveBlokir()" style="width:100%;">🔒 Blokir Waktu Ini</button>
+  </div>
+</div>
+
+<!-- Modal laporan detail -->
+<div class="overlay" id="lapDetailOverlay" onclick="if(event.target===this)closeLapDetail()">
+  <div class="modal">
+    <div class="modal-title">Detail Laporan</div>
+    <button class="modal-close" onclick="closeLapDetail()">✕</button>
+    <div id="lapDetailContent"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+
+// AUTH
+const guruId   = sessionStorage.getItem('cms_guru_id');
+const guruNama = sessionStorage.getItem('cms_guru_nama');
+(function(){
+  if(sessionStorage.getItem('cms_role')!=='guru'){ window.location.href='index.html'; }
+})();
+document.getElementById('namaGuruHdr').textContent = guruNama || '—';
+
+function logout(){ sessionStorage.clear(); window.location.href='index.html'; }
+
+// State
+let allMurid=[], allJadwal=[], allBlokir=[], allReschedule=[], allLaporan=[];
+let weekOffset=0;
+
+// Helpers
+function api(params){
+  if(!API_URL) return Promise.resolve(lsApi(params));
+  return fetch(API_URL+'?'+new URLSearchParams(params)).then(r=>r.json());
+}
+function apiPost(body){
+  if(!API_URL) return Promise.resolve(lsApiPost(body));
+  return fetch(API_URL,{method:'POST',body:JSON.stringify(body)}).then(r=>r.json());
+}
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  setTimeout(()=>t.className='',3000);
+}
+function showTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const loaders={jadwal:loadJadwal,laporan:loadLaporan,ultah:loadUltah,notif:loadNotif,blokir:loadBlokir};
+  if(loaders[id]) loaders[id]();
+}
+function openModal(id){ document.getElementById(id||'blokOverlay').classList.add('show'); }
+function closeModal(){ document.getElementById('blokOverlay').classList.remove('show'); }
+function closeLapDetail(){ document.getElementById('lapDetailOverlay').classList.remove('show'); }
+function fmtKelas(k){const m={classical_piano_private:'Classical Piano',music_theory_private:'Theory (Private)',music_theory_group:'Theory (Group)'};return m[k]||k;}
+function fmtTgl(str){if(!str)return'—';return new Date(str).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});}
+
+// LS fallback
+function lsApi(p){
+  const k={get_murid:'cms_murid',get_jadwal:'cms_jadwal',get_blokir:'cms_blokir',get_reschedule:'cms_reschedule',get_laporan:'cms_laporan'};
+  if(k[p.action]) return {data:JSON.parse(localStorage.getItem(k[p.action])||'[]')};
+  return {data:[]};
+}
+function lsApiPost(body){
+  const now=Date.now();
+  if(body.action==='save_blokir'){
+    let l=JSON.parse(localStorage.getItem('cms_blokir')||'[]');
+    l.push({...body,id:String(now),locked_by_admin:false});
+    localStorage.setItem('cms_blokir',JSON.stringify(l));
+    return {ok:true};
+  }
+  if(body.action==='delete_blokir'){
+    let l=JSON.parse(localStorage.getItem('cms_blokir')||'[]').filter(b=>b.id!==body.id);
+    localStorage.setItem('cms_blokir',JSON.stringify(l));
+    return {ok:true};
+  }
+  if(body.action==='save_laporan'){
+    let l=JSON.parse(localStorage.getItem('cms_laporan')||'[]');
+    l.push({...body,id:String(now),tgl_dibuat:new Date().toISOString().slice(0,10)});
+    localStorage.setItem('cms_laporan',JSON.stringify(l));
+    // Mark sesi laporan_guru = true
+    let sesis=JSON.parse(localStorage.getItem('cms_sesi')||'[]');
+    const idx=sesis.findIndex(s=>s.murid_id===body.murid_id&&s.tanggal===body.tgl_les);
+    if(idx>=0){ sesis[idx].laporan_guru=true; if(!sesis[idx].absensi_admin){ kurangiSesiLaporan(body.murid_id); } }
+    else {
+      sesis.push({id:String(now)+'l',murid_id:body.murid_id,guru_id:guruId,tanggal:body.tgl_les,laporan_guru:true,absensi_admin:false,status_absensi:'pending'});
+      kurangiSesiLaporan(body.murid_id);
+    }
+    localStorage.setItem('cms_sesi',JSON.stringify(sesis));
+    return {ok:true};
+  }
+  if(body.action==='respons_reschedule'){
+    let l=JSON.parse(localStorage.getItem('cms_reschedule')||'[]');
+    l=l.map(r=>r.id===body.id?{...r,status:body.status,catatan_guru:body.catatan||''}:r);
+    localStorage.setItem('cms_reschedule',JSON.stringify(l));
+    return {ok:true};
+  }
+  return {ok:true};
+}
+function kurangiSesiLaporan(muridId){
+  let pakets=JSON.parse(localStorage.getItem('cms_paket')||'[]');
+  const aktif=pakets.find(p=>p.murid_id===muridId&&p.status==='aktif');
+  if(aktif){
+    aktif.sesi_digunakan=(aktif.sesi_digunakan||0)+1;
+    if(aktif.sesi_digunakan>=(aktif.total_sesi+(aktif.bonus||0))) aktif.status='habis';
+    localStorage.setItem('cms_paket',JSON.stringify(pakets));
+  }
+}
+
+// ══ JADWAL ══
+async function loadJadwal(){
+  const [rM,rJ,rB]=await Promise.all([api({action:'get_murid'}),api({action:'get_jadwal'}),api({action:'get_blokir'})]);
+  allMurid=rM.data||[];
+  allJadwal=(rJ.data||[]).filter(j=>j.guru_id===guruId&&j.aktif!==false);
+  allBlokir=(rB.data||[]).filter(b=>b.guru_id===guruId||b.guru_id==='all');
+  renderWeek();
+  renderLesHariIni();
+}
+function changeWeek(d){ weekOffset+=d; renderWeek(); }
+function getWeekDates(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const monday=new Date(today);
+  monday.setDate(today.getDate()-(today.getDay()||7)+1+(weekOffset*7));
+  return Array.from({length:7},(_,i)=>{ const d=new Date(monday); d.setDate(monday.getDate()+i); return d; });
+}
+function renderWeek(){
+  const days=getWeekDates();
+  const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const today=new Date(); today.setHours(0,0,0,0);
+  const fmt=d=>d.toISOString().slice(0,10);
+
+  document.getElementById('weekLabel').textContent=`${days[0].toLocaleDateString('id-ID',{day:'numeric',month:'short'})} – ${days[6].toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}`;
+
+  const grid=document.getElementById('weekGrid');
+  grid.innerHTML=days.map((d,i)=>{
+    const isToday=d.getTime()===today.getTime();
+    const tgl=fmt(d);
+    const slots=allJadwal.filter(j=>j.hari===HARI[i]);
+    const bloks=allBlokir.filter(b=>b.tgl===tgl);
+    return `<div class="day-col">
+      <div class="day-head${isToday?' today':''}">
+        <div>${HARI[i].slice(0,3)}</div>
+        <div style="font-weight:700;font-size:12px;">${d.getDate()}</div>
+      </div>
+      ${slots.map(s=>`<div class="slot"><div class="s-name">${allMurid.find(m=>m.id===s.murid_id)?.nama||'—'}</div><div class="s-time">${s.waktu_mulai}</div></div>`).join('')}
+      ${bloks.map(b=>`<div class="slot ${b.locked_by_admin?'blocked':'my-block'}"><div class="s-name">${b.locked_by_admin?'🔒 Admin':'🚫 Saya'}</div><div class="s-time">${b.waktu_mulai||'—'}</div></div>`).join('')}
+    </div>`;
+  }).join('');
+}
+function renderLesHariIni(){
+  const today=new Date();
+  const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const hari=HARI[today.getDay()];
+  const les=allJadwal.filter(j=>j.hari===hari);
+  const el=document.getElementById('lesHariIni');
+  if(les.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada jadwal les hari ini</div>'; return; }
+  el.innerHTML=les.map(j=>`
+    <div class="absen-card">
+      <div class="ac-info">
+        <div class="ac-name">${allMurid.find(m=>m.id===j.murid_id)?.nama||'—'}</div>
+        <div class="ac-meta">${j.waktu_mulai}–${j.waktu_selesai} · ${fmtKelas(j.kelas)}</div>
+      </div>
+      <button class="btn btn-gold btn-xs" onclick="quickLaporan('${j.murid_id}')">📝 Isi Laporan</button>
+    </div>`).join('');
+}
+function quickLaporan(muridId){
+  showTab('laporan',null);
+  setTimeout(()=>{
+    document.getElementById('lapMurid').value=muridId;
+    document.getElementById('lapTgl').value=new Date().toISOString().slice(0,10);
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.querySelectorAll('.tab-btn')[0].classList.remove('active');
+  },100);
+}
+
+// ══ LAPORAN ══
+async function loadLaporan(){
+  const [rM,rL]=await Promise.all([api({action:'get_murid'}),api({action:'get_laporan'})]);
+  allMurid=rM.data||[];
+  allLaporan=(rL.data||[]).filter(l=>l.guru_id===guruId);
+  const myMurid=allMurid.filter(m=>m.guru_id===guruId);
+  document.getElementById('lapMurid').innerHTML='<option value="">— Pilih Murid —</option>'+myMurid.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('');
+  document.getElementById('lapFilterMurid').innerHTML='<option value="">Semua Murid</option>'+myMurid.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('');
+  document.getElementById('lapTgl').value=new Date().toISOString().slice(0,10);
+  loadRiwayatLaporan();
+}
+function onMuridChange(){}
+function previewLaporan(){
+  const muridId=document.getElementById('lapMurid').value;
+  const tgl=document.getElementById('lapTgl').value;
+  const lesson=document.getElementById('lapLesson').value;
+  const practice=document.getElementById('lapPractice').value;
+  const goals=document.getElementById('lapGoals').value;
+  if(!muridId||!tgl){ showToast('Pilih murid & tanggal dulu','error'); return; }
+  const murid=allMurid.find(m=>m.id===muridId);
+  document.getElementById('laporanPreview').innerHTML=`
+    <div class="lp-title">📋 Laporan Les — ${murid?.nama||'—'}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:1rem;">${fmtTgl(tgl)} · ${guruNama}</div>
+    <div class="lp-section"><div class="lp-label">📖 Today's Lesson</div><div class="lp-content">${lesson||'—'}</div></div>
+    <div class="lp-section"><div class="lp-label">🎯 What to Practice</div><div class="lp-content">${practice||'—'}</div></div>
+    <div class="lp-section"><div class="lp-label">🏆 Upcoming Event / Goals</div><div class="lp-content">${goals||'—'}</div></div>`;
+  document.getElementById('laporanPreviewWrap').style.display='block';
+}
+async function simpanLaporan(){
+  const muridId=document.getElementById('lapMurid').value;
+  const tgl=document.getElementById('lapTgl').value;
+  const lesson=document.getElementById('lapLesson').value.trim();
+  const practice=document.getElementById('lapPractice').value.trim();
+  const goals=document.getElementById('lapGoals').value.trim();
+  if(!muridId||!tgl||!lesson){ showToast('Murid, tanggal & Today\'s Lesson wajib diisi','error'); return; }
+  await apiPost({action:'save_laporan',murid_id:muridId,guru_id:guruId,tgl_les:tgl,lesson,practice,goals,guru_nama:guruNama});
+  showToast('Laporan disimpan ✓','success');
+  document.getElementById('lapLesson').value='';
+  document.getElementById('lapPractice').value='';
+  document.getElementById('lapGoals').value='';
+  document.getElementById('laporanPreviewWrap').style.display='none';
+  loadRiwayatLaporan();
+}
+function loadRiwayatLaporan(){
+  const filter=document.getElementById('lapFilterMurid').value;
+  let list=[...allLaporan].reverse();
+  if(filter) list=list.filter(l=>l.murid_id===filter);
+  const el=document.getElementById('riwayatLaporan');
+  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada laporan</div>'; return; }
+  el.innerHTML=list.slice(0,20).map(l=>{
+    const murid=allMurid.find(m=>m.id===l.murid_id);
+    return `<div style="padding:12px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;" onclick="showLapDetail('${l.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${murid?.nama||'—'}</div>
+          <div style="font-size:11px;color:var(--muted);">${fmtTgl(l.tgl_les)}</div>
+        </div>
+        <span class="badge badge-gold">Lihat →</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${l.lesson||''}</div>
+    </div>`;
+  }).join('');
+}
+function showLapDetail(id){
+  const l=allLaporan.find(x=>x.id===id);
+  if(!l) return;
+  const murid=allMurid.find(m=>m.id===l.murid_id);
+  document.getElementById('lapDetailContent').innerHTML=`
+    <div style="background:linear-gradient(135deg,var(--blue),#1d4ed8);border-radius:12px;padding:1.25rem;color:#fff;margin-bottom:1rem;">
+      <div style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:.5rem;">${murid?.nama||'—'}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.65);">${fmtTgl(l.tgl_les)}</div>
+    </div>
+    <div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">📖 Today's Lesson</div><div style="font-size:13px;line-height:1.7;">${l.lesson||'—'}</div></div>
+    <div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">🎯 What to Practice</div><div style="font-size:13px;line-height:1.7;">${l.practice||'—'}</div></div>
+    <div><div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">🏆 Upcoming Event / Goals</div><div style="font-size:13px;line-height:1.7;">${l.goals||'—'}</div></div>`;
+  document.getElementById('lapDetailOverlay').classList.add('show');
+}
+
+// ══ ULTAH ══
+async function loadUltah(){
+  const rM=await api({action:'get_murid'});
+  allMurid=rM.data||[];
+  const myMurid=allMurid.filter(m=>m.guru_id===guruId);
+  const today=new Date();
+  const sorted=[...myMurid].filter(m=>m.tgl_lahir).sort((a,b)=>{
+    const da=new Date(a.tgl_lahir), db=new Date(b.tgl_lahir);
+    const ma=(da.getMonth()*100+da.getDate()-today.getMonth()*100-today.getDate()+1200)%1200;
+    const mb=(db.getMonth()*100+db.getDate()-today.getMonth()*100-today.getDate()+1200)%1200;
+    return ma-mb;
+  });
+  const el=document.getElementById('ultahList');
+  if(sorted.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Murid belum ada data tanggal lahir</div>'; return; }
+  el.innerHTML=sorted.map(m=>{
+    const d=new Date(m.tgl_lahir);
+    const isToday=d.getDate()===today.getDate()&&d.getMonth()===today.getMonth();
+    const isBulanIni=d.getMonth()===today.getMonth();
+    const age=today.getFullYear()-d.getFullYear();
+    return `<div class="bday-card">
+      <div class="bday-ava">${isToday?'🎂':'🎵'}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">${m.nama}</div>
+        <div style="font-size:12px;color:var(--muted);">${d.toLocaleDateString('id-ID',{day:'numeric',month:'long'})} · ${age} tahun</div>
+      </div>
+      ${isToday?'<span class="badge badge-gold">🎂 Hari ini!</span>':isBulanIni?'<span class="badge badge-orange">Bulan ini</span>':''}
+    </div>`;
+  }).join('');
+}
+
+// ══ NOTIF ══
+async function loadNotif(){
+  const [rR,rM]=await Promise.all([api({action:'get_reschedule'}),api({action:'get_murid'})]);
+  allReschedule=(rR.data||[]).filter(r=>r.guru_id===guruId);
+  allMurid=rM.data||[];
+  const pending=allReschedule.filter(r=>r.status==='pending');
+  const tabBtn=document.getElementById('tabNotif');
+  tabBtn.textContent=pending.length>0?`🔔 Notifikasi (${pending.length})`:'🔔 Notifikasi';
+  renderNotif();
+}
+function renderNotif(){
+  const list=[...allReschedule].reverse();
+  const el=document.getElementById('notifList');
+  if(list.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada permintaan reschedule</div>'; return; }
+  el.innerHTML=list.map(r=>{
+    const murid=allMurid.find(m=>m.id===r.murid_id);
+    const cls=r.status==='accepted'?'accepted':r.status==='rejected'?'rejected':'';
+    const statusBadge={pending:'<span class="badge badge-orange">⏳ Pending</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'}[r.status];
+    return `<div class="notif-card ${cls}">
+      <div class="notif-top">
+        <div class="notif-name">${murid?.nama||'—'}</div>
+        ${statusBadge}
+      </div>
+      <div class="notif-detail">📅 Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
+      <div class="notif-detail">🔄 Usulan: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
+      ${r.alasan?`<div class="notif-detail">💬 Alasan: ${r.alasan}</div>`:''}
+      ${r.status==='pending'?`<div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="btn btn-green btn-xs" onclick="responNotif('${r.id}','accepted')">✅ Terima</button>
+        <button class="btn btn-danger btn-xs" onclick="responNotif('${r.id}','rejected')">❌ Tolak</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+async function responNotif(id,status){
+  const r=allReschedule.find(x=>x.id===id);
+  if(r?.tgl_asli&&status==='accepted'){
+    const diffH=(new Date(r.tgl_asli)-new Date())/(1000*60*60);
+    if(diffH<24){ showToast('⚠️ Kurang dari 24 jam, tidak bisa diterima','error'); return; }
+  }
+  await apiPost({action:'respons_reschedule',id,status});
+  showToast(status==='accepted'?'Reschedule diterima ✓':'Reschedule ditolak',status==='accepted'?'success':'');
+  loadNotif();
+}
+
+// ══ BLOKIR ══
+async function loadBlokir(){
+  const rB=await api({action:'get_blokir'});
+  allBlokir=(rB.data||[]).filter(b=>(b.guru_id===guruId||b.guru_id==='all'));
+  renderBlokirList();
+}
+function renderBlokirList(){
+  const myBlokir=allBlokir.filter(b=>b.guru_id===guruId);
+  const adminBlokir=allBlokir.filter(b=>b.guru_id==='all');
+  const el=document.getElementById('blokirList');
+  let html='';
+  if(myBlokir.length===0&&adminBlokir.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada waktu yang diblokir</div>'; return; }
+  if(myBlokir.length>0){
+    html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;">Blokir Saya</div>';
+    html+=myBlokir.map(b=>`<div class="blok-card">
+      <div><div style="font-size:13px;font-weight:600;">🚫 ${b.tgl||'—'} ${b.waktu_mulai?b.waktu_mulai+'–'+b.waktu_selesai:''}</div>
+      <div style="font-size:11px;color:var(--muted);">${b.catatan||''}</div></div>
+      <button class="btn btn-danger btn-xs" onclick="deleteBlokir('${b.id}')">Hapus</button>
+    </div>`).join('');
+  }
+  if(adminBlokir.length>0){
+    html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 8px;">Blokir dari Admin</div>';
+    html+=adminBlokir.map(b=>`<div style="padding:10px 13px;background:var(--red-light);border:1px solid #fecaca;border-radius:9px;margin-bottom:7px;">
+      <div style="font-size:13px;font-weight:600;">🔒 ${b.tgl||'—'} ${b.waktu_mulai?b.waktu_mulai+'–'+b.waktu_selesai:''}</div>
+      <div style="font-size:11px;color:var(--muted);">${b.catatan||''}</div>
+    </div>`).join('');
+  }
+  el.innerHTML=html;
+}
+function openBlokModal(){ document.getElementById('blokOverlay').classList.add('show'); }
+async function saveBlokir(){
+  const tgl=document.getElementById('bkTgl').value;
+  if(!tgl){ showToast('Pilih tanggal','error'); return; }
+  await apiPost({action:'save_blokir',guru_id:guruId,tgl,waktu_mulai:document.getElementById('bkMulai').value,waktu_selesai:document.getElementById('bkSelesai').value,catatan:document.getElementById('bkCatatan').value,locked_by_admin:false});
+  closeModal();
+  showToast('Waktu diblokir 🔒');
+  loadBlokir();
+}
+async function deleteBlokir(id){
+  if(!confirm('Hapus blokir waktu ini?')) return;
+  await apiPost({action:'delete_blokir',id});
+  showToast('Blokir dihapus');
+  loadBlokir();
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded',()=>{
+  loadJadwal();
+  loadNotif();
+});
+</script>
+</body>
+</html>

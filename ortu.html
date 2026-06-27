@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Orang Tua — Clarin Music Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1e3a8a;--blue-med:#2563eb;--blue-light:#dbeafe;--blue-bg:#eff6ff;
+  --gold:#92400e;--gold-med:#d97706;--gold-bright:#f59e0b;--gold-light:#fef3c7;--gold-bg:#fffbeb;
+  --navy:#0f172a;--paper:#f8fafc;--border:#bfdbfe;--muted:#64748b;--white:#fff;
+  --green:#065f46;--green-med:#059669;--green-light:#d1fae5;
+  --red:#991b1b;--red-med:#dc2626;--red-light:#fee2e2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--navy);min-height:100vh;}
+
+header{background:linear-gradient(135deg,var(--green) 0%,var(--green-med) 60%,#34d399 100%);padding:1rem 1.5rem;}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:840px;margin:0 auto;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.hdr-logo{width:44px;height:44px;object-fit:contain;border-radius:11px;background:rgba(255,255,255,.2);padding:4px;flex-shrink:0;}
+.hdr-logo-fb{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.hdr-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.65);}
+.hdr-title{font-family:'Playfair Display',serif;font-size:clamp(15px,3vw,20px);color:#fff;}
+.hdr-murid{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;}
+.btn-logout{color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;background:none;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:6px 12px;}
+.btn-logout:hover{background:rgba(255,255,255,.15);}
+
+.tab-bar{background:#047857;border-bottom:1px solid rgba(0,0,0,.1);overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-inner{display:flex;max-width:840px;margin:0 auto;padding:0 .75rem;}
+.tab-btn{flex-shrink:0;padding:10px 14px;border:none;background:none;color:rgba(255,255,255,.55);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:.04em;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;}
+.tab-btn.active{color:#fff;border-bottom-color:#fff;}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.85);}
+
+main{max-width:840px;margin:0 auto;padding:1.5rem 1.25rem 5rem;}
+.page{display:none;}.page.active{display:block;}
+
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.1rem;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:.75rem;border-bottom:1px solid var(--green-light);}
+.sec-hdr-l{display:flex;align-items:center;gap:9px;}
+.sec-icon{width:30px;height:30px;background:var(--green-light);color:var(--green-med);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.sec-title{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--green);}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label.lbl{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{font-family:'Inter',sans-serif;font-size:13.5px;color:var(--navy);background:var(--paper);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;width:100%;transition:.15s;outline:none;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--green-med);box-shadow:0 0 0 3px rgba(5,150,105,.14);background:#fff;}
+textarea{resize:vertical;min-height:70px;line-height:1.6;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-primary{background:var(--blue-med);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--blue);}
+.btn-gold{background:var(--gold-med);color:#fff;}
+.btn-gold:hover:not(:disabled){background:var(--gold);}
+.btn-green{background:var(--green-med);color:#fff;}
+.btn-green:hover:not(:disabled){background:var(--green);}
+.btn-ghost{background:var(--paper);color:var(--navy);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--blue-bg);}
+.btn-sm{padding:7px 14px;font-size:12.5px;}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
+
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-gold{background:var(--gold-light);color:var(--gold);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red-med);}
+.badge-gray{background:#f1f5f9;color:var(--muted);}
+.badge-orange{background:#fed7aa;color:#9a3412;}
+
+/* Sesi progress */
+.sesi-box{background:linear-gradient(135deg,var(--blue) 0%,#1d4ed8 100%);border-radius:14px;padding:1.25rem;color:#fff;margin-bottom:1rem;}
+.sesi-box-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:4px;}
+.sesi-box-num{font-size:32px;font-weight:700;}
+.sesi-bar{height:10px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;}
+.sesi-fill{height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;transition:.4s;}
+
+/* Laporan card */
+.lap-card{background:var(--paper);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;}
+.lap-card:hover{border-color:var(--blue-med);background:var(--blue-bg);}
+.lap-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.lap-date{font-size:11px;color:var(--muted);}
+.lap-excerpt{font-size:12px;color:var(--muted);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
+/* Laporan detail */
+.lap-detail-section{margin-bottom:14px;}
+.lap-detail-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;}
+.lap-detail-content{font-size:14px;line-height:1.8;color:var(--navy);}
+
+/* Tagihan */
+.tag-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+.tag-card-top{padding:16px;background:linear-gradient(135deg,var(--gold-bg),#fff);border-bottom:1px solid var(--gold-light);}
+.tag-nominal{font-size:24px;font-weight:700;color:var(--gold);}
+.tag-body{padding:14px 16px;}
+.tag-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+
+/* Upload proof */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:.15s;}
+.upload-area:hover{border-color:var(--green-med);background:var(--green-light);}
+.upload-area.has-file{border-color:var(--green-med);background:var(--green-light);}
+
+/* Schedule propose */
+.free-slot{background:var(--blue-bg);border:1px solid var(--blue-light);border-radius:9px;padding:10px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.free-slot.blocked{background:var(--red-light);border-color:#fecaca;cursor:not-allowed;}
+.free-slot-time{font-size:13px;font-weight:600;color:var(--blue);}
+.free-slot-info{font-size:11px;color:var(--muted);}
+
+/* Jadwal murid */
+.jadwal-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.jadwal-time{font-size:22px;font-weight:700;color:var(--blue);min-width:50px;text-align:center;}
+.jadwal-day{font-size:10px;color:var(--muted);text-align:center;}
+.jadwal-info{flex:1;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:.3s;z-index:9999;white-space:nowrap;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.success{background:var(--green-med);}
+#toast.error{background:var(--red-med);}
+
+/* Overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:999;backdrop-filter:blur(3px);}
+.overlay.show{display:flex;align-items:center;justify-content:center;padding:1rem;}
+.modal{background:#fff;border-radius:18px;padding:1.75rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(15,23,42,.2);}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--blue);margin-bottom:1.25rem;}
+.modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;background:var(--paper);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:12px;display:flex;gap:10px;}
+.alert-gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-light);}
+.alert-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-light);}
+.alert-green{background:var(--green-light);color:var(--green);border:1px solid #a7f3d0;}
+
+@media(max-width:600px){.g2{grid-template-columns:1fr;}main{padding:1rem .75rem 4rem;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="hdr-l">
+      <img class="hdr-logo" src="logo.jpeg" alt="CMS"
+        onerror="this.outerHTML='<div class=\'hdr-logo-fb\'>🎹</div>'">
+      <div>
+        <div class="hdr-sub">Clarin Music Studio</div>
+        <div class="hdr-title">Portal Orang Tua</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="hdr-murid" id="namaMuridHdr">—</span>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab-inner">
+    <button class="tab-btn active" onclick="showTab('jadwal',this)">📅 Jadwal Les</button>
+    <button class="tab-btn" onclick="showTab('laporan',this)">📝 Laporan</button>
+    <button class="tab-btn" onclick="showTab('tagihan',this)" id="tabTagihan">💰 Tagihan</button>
+    <button class="tab-btn" onclick="showTab('reschedule',this)">🔄 Ganti Jadwal</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════ JADWAL ═══════════════════════ -->
+<div class="page active" id="page-jadwal">
+
+  <!-- Sesi box -->
+  <div id="sesiBoxWrap"></div>
+
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📅</div>
+        <div><div class="sec-title">Jadwal Les Rutin</div></div>
+      </div>
+    </div>
+    <div id="jadwalList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+
+  <!-- Riwayat sesi -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📊</div>
+        <div><div class="sec-title">Riwayat Sesi</div></div>
+      </div>
+    </div>
+    <div id="riwayatSesi"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LAPORAN ═══════════════════════ -->
+<div class="page" id="page-laporan">
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📝</div>
+        <div><div class="sec-title">Laporan Perkembangan</div></div>
+      </div>
+    </div>
+    <div id="laporanList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAGIHAN ═══════════════════════ -->
+<div class="page" id="page-tagihan">
+  <div class="alert alert-blue" style="margin-bottom:1rem;">
+    ℹ️ Setelah pembayaran dikonfirmasi admin, jadwal les bisa ditambahkan.
+    Paket 8 sesi mendapat <strong>1 sesi bonus gratis</strong>! 🎁
+  </div>
+  <div id="tagihanList"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+</div>
+
+<!-- ═══════════════════════ RESCHEDULE ═══════════════════════ -->
+<div class="page" id="page-reschedule">
+  <div class="alert alert-gold" style="margin-bottom:1rem;">
+    ⚠️ Permintaan reschedule harus diajukan <strong>minimal 24 jam</strong> sebelum jadwal les asli.
+    Waktu yang diblokir admin atau guru tidak bisa dipilih.
+  </div>
+
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">🔄</div>
+        <div><div class="sec-title">Ajukan Reschedule</div></div>
+      </div>
+    </div>
+
+    <!-- Step 1: pilih jadwal yang mau diganti -->
+    <div style="margin-bottom:14px;">
+      <label class="lbl" style="display:block;margin-bottom:5px;">1. Jadwal yang ingin diganti</label>
+      <select id="resSesiAsli" onchange="onSesiChange()" style="margin-bottom:0;">
+        <option value="">— Pilih jadwal —</option>
+      </select>
+    </div>
+
+    <!-- Step 2: alasan -->
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">2. Alasan izin</label>
+      <textarea id="resAlasan" placeholder="Contoh: Sakit, ada acara keluarga..."></textarea>
+    </div>
+
+    <!-- Step 3: cek jadwal guru & pilih slot -->
+    <div id="cekJadwalGuru" style="display:none;">
+      <label class="lbl" style="display:block;margin-bottom:10px;">3. Pilih waktu alternatif (cek jadwal guru)</label>
+
+      <!-- Week picker untuk cek slot guru -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <button class="btn btn-ghost btn-xs" onclick="changeResWeek(-1)">← Prev</button>
+        <span id="resWeekLabel" style="font-size:13px;font-weight:600;flex:1;text-align:center;"></span>
+        <button class="btn btn-ghost btn-xs" onclick="changeResWeek(1)">Next →</button>
+      </div>
+
+      <div id="freeSlotList"><div style="color:var(--muted);font-size:13px;">Pilih jadwal asli dulu...</div></div>
+    </div>
+
+    <!-- Selected slot preview -->
+    <div id="selectedSlotPreview" style="display:none;background:var(--green-light);border:1px solid #a7f3d0;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:600;color:var(--green);">✓ Waktu dipilih:</div>
+      <div id="selectedSlotText" style="font-size:14px;font-weight:700;color:var(--green);margin-top:3px;"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="ajukanReschedule()" style="width:100%;">Kirim Permintaan Reschedule</button>
+  </div>
+
+  <!-- Riwayat permintaan -->
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-hdr-l">
+        <div class="sec-icon">📋</div>
+        <div><div class="sec-title">Riwayat Permintaan</div></div>
+      </div>
+    </div>
+    <div id="resRiwayat"><div style="color:var(--muted);font-size:13px;">Memuat...</div></div>
+  </div>
+</div>
+
+</main>
+
+<!-- Modal laporan detail -->
+<div class="overlay" id="lapOverlay" onclick="if(event.target===this)closeLap()">
+  <div class="modal">
+    <div class="modal-title" id="lapModalTitle">Laporan Les</div>
+    <button class="modal-close" onclick="closeLap()">✕</button>
+    <div id="lapModalContent"></div>
+  </div>
+</div>
+
+<!-- Modal upload bukti -->
+<div class="overlay" id="uploadOverlay" onclick="if(event.target===this)closeUpload()">
+  <div class="modal">
+    <div class="modal-title">Upload Bukti Pembayaran</div>
+    <button class="modal-close" onclick="closeUpload()">✕</button>
+    <div id="uploadDetail" style="margin-bottom:1rem;"></div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">Nama / Keterangan Transfer</label>
+      <input id="uploadNama" placeholder="Atas nama / Bank / No. transfer...">
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label class="lbl">Catatan (opsional)</label>
+      <input id="uploadCatatan" placeholder="Transfer via BCA, BRI, dst...">
+    </div>
+    <div class="alert alert-blue" style="margin-bottom:14px;">
+      ℹ️ Upload foto bukti transfer langsung ke admin via WhatsApp ya, lalu isi form ini untuk notifikasi.
+    </div>
+    <button class="btn btn-green" onclick="submitBukti()" style="width:100%;">✅ Konfirmasi Sudah Transfer</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_URL = localStorage.getItem('cms_api_url') || 'https://script.google.com/macros/s/AKfycbzPpSbA6WiTf7YGHcmArdJk-MEPzbuZe7sWj-lp6a9pgtj2try4uCbxcINWSHAI4XfDxQ/exec';
+const muridId   = sessionStorage.getItem('cms_murid_id');
+const muridNama = sessionStorage.getItem('cms_murid_nama');
+
+(function(){
+  if(sessionStorage.getItem('cms_role')!=='ortu'){ window.location.href='index.html'; }
+})();
+document.getElementById('namaMuridHdr').textContent = muridNama || '—';
+
+function logout(){ sessionStorage.clear(); window.location.href='index.html'; }
+
+let allJadwal=[], allLaporan=[], allTagihan=[], allReschedule=[], allBlokir=[], allGuru=[], allMurid=[];
+let muridData=null, guruData=null;
+let resWeekOffset=0, selectedSlot=null, uploadTagihanId=null;
+
+function api(p){ if(!API_URL) return Promise.resolve(lsApi(p)); return fetch(API_URL+'?'+new URLSearchParams(p)).then(r=>r.json()); }
+function apiPost(b){ if(!API_URL) return Promise.resolve(lsApiPost(b)); return fetch(API_URL,{method:'POST',body:JSON.stringify(b)}).then(r=>r.json()); }
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);}
+function showTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const loaders={jadwal:loadJadwal,laporan:loadLaporan,tagihan:loadTagihan,reschedule:loadReschedule};
+  if(loaders[id]) loaders[id]();
+}
+function fmtTgl(s){if(!s)return'—';return new Date(s).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});}
+function fmtKelas(k){const m={classical_piano_private:'Classical Piano',music_theory_private:'Theory (Private)',music_theory_group:'Theory (Group)'};return m[k]||k;}
+
+function lsApi(p){
+  const k={get_murid:'cms_murid',get_guru:'cms_guru',get_jadwal:'cms_jadwal',get_laporan:'cms_laporan',get_tagihan:'cms_tagihan',get_reschedule:'cms_reschedule',get_blokir:'cms_blokir',get_sesi:'cms_sesi'};
+  if(k[p.action]) return {data:JSON.parse(localStorage.getItem(k[p.action])||'[]')};
+  return {data:[]};
+}
+function lsApiPost(body){
+  const now=Date.now();
+  if(body.action==='upload_bukti'){
+    let l=JSON.parse(localStorage.getItem('cms_tagihan')||'[]');
+    l=l.map(t=>t.id===body.id?{...t,status:'dibayar',bukti_bayar:body.keterangan}:t);
+    localStorage.setItem('cms_tagihan',JSON.stringify(l));
+    return {ok:true};
+  }
+  if(body.action==='save_reschedule'){
+    let l=JSON.parse(localStorage.getItem('cms_reschedule')||'[]');
+    l.push({...body,id:String(now),status:'pending',tgl_request:new Date().toISOString().slice(0,10)});
+    localStorage.setItem('cms_reschedule',JSON.stringify(l));
+    return {ok:true};
+  }
+  return {ok:true};
+}
+
+// ══ JADWAL ══
+async function loadJadwal(){
+  const [rM,rG,rJ,rS]=await Promise.all([api({action:'get_murid'}),api({action:'get_guru'}),api({action:'get_jadwal'}),api({action:'get_sesi'})]);
+  allMurid=rM.data||[];
+  allGuru=rG.data||[];
+  allJadwal=(rJ.data||[]).filter(j=>j.murid_id===muridId&&j.aktif!==false);
+  muridData=allMurid.find(m=>m.id===muridId)||null;
+  if(muridData) guruData=allGuru.find(g=>g.id===muridData.guru_id)||null;
+
+  // Sesi box
+  const pakets=JSON.parse(localStorage.getItem('cms_paket')||'[]');
+  const paket=pakets.find(p=>p.murid_id===muridId&&p.status==='aktif');
+  const sesiBox=document.getElementById('sesiBoxWrap');
+  if(paket){
+    const total=paket.total_sesi+(paket.bonus||0);
+    const digunakan=paket.sesi_digunakan||0;
+    const sisa=Math.max(0,total-digunakan);
+    const pct=Math.round(digunakan/total*100);
+    sesiBox.innerHTML=`<div class="sesi-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+        <div>
+          <div class="sesi-box-label">Paket Sesi Aktif</div>
+          <div class="sesi-box-num">${sisa} <span style="font-size:16px;font-weight:400;">sesi tersisa</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:rgba(255,255,255,.65);">Total paket</div>
+          <div style="font-size:20px;font-weight:700;">${total} sesi${paket.bonus?` <span style="font-size:12px;color:#fde68a;">+${paket.bonus} bonus</span>`:''}
+          </div>
+        </div>
+      </div>
+      <div class="sesi-bar"><div class="sesi-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.65);margin-top:5px;">
+        <span>${digunakan} sesi digunakan</span>
+        <span>${sisa<=2&&sisa>0?'⚠️ Hampir habis — minta tagihan baru':''}${sisa===0?'❌ Paket habis':''}</span>
+      </div>
+    </div>`;
+  } else {
+    sesiBox.innerHTML=`<div style="background:var(--gold-bg);border:1px solid var(--gold-light);border-radius:12px;padding:14px 16px;margin-bottom:1rem;font-size:13px;color:var(--gold);">💡 Belum ada paket sesi aktif. Hubungi admin untuk mendapatkan tagihan paket.</div>`;
+  }
+
+  // Jadwal rutin
+  const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const jadwalEl=document.getElementById('jadwalList');
+  if(allJadwal.length===0){ jadwalEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada jadwal les yang ditetapkan</div>'; }
+  else {
+    const sorted=allJadwal.sort((a,b)=>HARI.indexOf(a.hari)-HARI.indexOf(b.hari));
+    jadwalEl.innerHTML=sorted.map(j=>`
+      <div class="jadwal-item">
+        <div style="text-align:center;min-width:50px;">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);">${j.hari?.slice(0,3)||'—'}</div>
+          <div style="font-size:20px;font-weight:700;color:var(--blue);">${j.waktu_mulai||'—'}</div>
+        </div>
+        <div class="jadwal-info">
+          <div style="font-size:13px;font-weight:600;">${fmtKelas(j.kelas)}</div>
+          <div style="font-size:11px;color:var(--muted);">Guru: ${guruData?.nama||'—'} · ${j.waktu_mulai}–${j.waktu_selesai}</div>
+        </div>
+        <span class="badge badge-blue">Rutin</span>
+      </div>`).join('');
+  }
+
+  // Riwayat sesi
+  const sesis=((rS.data||[]).filter(s=>s.murid_id===muridId)).slice(-10).reverse();
+  const rsEl=document.getElementById('riwayatSesi');
+  if(sesis.length===0){ rsEl.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada riwayat sesi</div>'; }
+  else {
+    const statusMap={hadir:'<span class="badge badge-green">✅ Hadir</span>',izin:'<span class="badge badge-orange">🙏 Izin</span>',cancelled:'<span class="badge badge-red">❌ Batal</span>',pending:'<span class="badge badge-gray">—</span>'};
+    rsEl.innerHTML=sesis.map(s=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--paper);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;gap:8px;">
+        <span style="font-size:13px;font-weight:500;">${fmtTgl(s.tanggal)}</span>
+        ${statusMap[s.status_absensi||'pending']||''}
+      </div>`).join('');
+  }
+}
+
+// ══ LAPORAN ══
+async function loadLaporan(){
+  const rL=await api({action:'get_laporan'});
+  allLaporan=(rL.data||[]).filter(l=>l.murid_id===muridId).reverse();
+  const el=document.getElementById('laporanList');
+  if(allLaporan.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada laporan les</div>'; return; }
+  el.innerHTML=allLaporan.map(l=>`
+    <div class="lap-card" onclick="showLap('${l.id}')">
+      <div class="lap-top">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${fmtTgl(l.tgl_les)}</div>
+          <div class="lap-date">Guru: ${l.guru_nama||'—'}</div>
+        </div>
+        <span class="badge badge-blue">Lihat →</span>
+      </div>
+      <div class="lap-excerpt">📖 ${l.lesson||'—'}</div>
+    </div>`).join('');
+}
+function showLap(id){
+  const l=allLaporan.find(x=>x.id===id);
+  if(!l) return;
+  document.getElementById('lapModalTitle').textContent=`Laporan — ${fmtTgl(l.tgl_les)}`;
+  document.getElementById('lapModalContent').innerHTML=`
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1.1rem;">Guru: ${l.guru_nama||'—'} · ${fmtTgl(l.tgl_les)}</div>
+    <div class="lap-detail-section">
+      <div class="lap-detail-label">📖 Today's Lesson</div>
+      <div class="lap-detail-content">${l.lesson||'—'}</div>
+    </div>
+    <div class="lap-detail-section">
+      <div class="lap-detail-label">🎯 What to Practice</div>
+      <div class="lap-detail-content">${l.practice||'Tidak ada catatan'}</div>
+    </div>
+    <div class="lap-detail-section">
+      <div class="lap-detail-label">🏆 Upcoming Event / Goals</div>
+      <div class="lap-detail-content">${l.goals||'Tidak ada catatan'}</div>
+    </div>`;
+  document.getElementById('lapOverlay').classList.add('show');
+}
+function closeLap(){ document.getElementById('lapOverlay').classList.remove('show'); }
+
+// ══ TAGIHAN ══
+async function loadTagihan(){
+  const rT=await api({action:'get_tagihan'});
+  allTagihan=(rT.data||[]).filter(t=>t.murid_id===muridId).reverse();
+  const el=document.getElementById('tagihanList');
+  const pending=allTagihan.filter(t=>t.status==='menunggu'||t.status==='dibayar').length;
+  if(pending>0) document.getElementById('tabTagihan').textContent=`💰 Tagihan (${pending})`;
+  if(allTagihan.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Tidak ada tagihan</div>'; return; }
+  el.innerHTML=allTagihan.map(t=>`
+    <div class="tag-card">
+      <div class="tag-card-top">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:3px;">${t.tgl_tagihan||'—'}</div>
+            <div style="font-size:14px;font-weight:600;">${t.jenis_paket==='8'?'Paket 8 Sesi (+1 Bonus Gratis 🎁)':t.jenis_paket==='4'?'Paket 4 Sesi':'Custom '+t.total_sesi+' Sesi'}</div>
+            ${t.catatan?`<div style="font-size:12px;color:var(--muted);margin-top:3px;">${t.catatan}</div>`:''}
+          </div>
+          <div class="tag-nominal">Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
+        </div>
+      </div>
+      <div class="tag-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div>
+            ${{menunggu:'<span class="badge badge-orange">⏳ Belum Dibayar</span>',dibayar:'<span class="badge badge-blue">📤 Bukti Terkirim — Menunggu Konfirmasi Admin</span>',dikonfirmasi:'<span class="badge badge-green">✅ Lunas — Paket Aktif</span>'}[t.status]||''}
+          </div>
+          <div class="tag-actions">
+            ${t.status==='menunggu'?`<button class="btn btn-green btn-sm" onclick="openUpload('${t.id}')">💳 Sudah Bayar? Upload Bukti</button>`:''}
+            ${t.status==='dikonfirmasi'?`<span style="font-size:12px;color:var(--green-med);">✅ Terima kasih!</span>`:''}
+          </div>
+        </div>
+        ${t.status==='dikonfirmasi'&&t.tgl_konfirmasi?`<div style="font-size:11px;color:var(--muted);margin-top:6px;">Dikonfirmasi: ${fmtTgl(t.tgl_konfirmasi)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+function openUpload(id){
+  uploadTagihanId=id;
+  const t=allTagihan.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('uploadDetail').innerHTML=`
+    <div style="background:var(--gold-bg);border:1px solid var(--gold-light);border-radius:10px;padding:12px 14px;">
+      <div style="font-size:14px;font-weight:600;color:var(--gold);">Rp ${Number(t.nominal||0).toLocaleString('id-ID')}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">${t.jenis_paket==='8'?'Paket 8 Sesi (+1 Bonus)':t.jenis_paket==='4'?'Paket 4 Sesi':'Custom '+t.total_sesi+' Sesi'}</div>
+    </div>`;
+  document.getElementById('uploadNama').value='';
+  document.getElementById('uploadCatatan').value='';
+  document.getElementById('uploadOverlay').classList.add('show');
+}
+function closeUpload(){ document.getElementById('uploadOverlay').classList.remove('show'); }
+async function submitBukti(){
+  const nama=document.getElementById('uploadNama').value.trim();
+  if(!nama){ showToast('Isi keterangan transfer dulu','error'); return; }
+  const catatan=document.getElementById('uploadCatatan').value;
+  await apiPost({action:'upload_bukti',id:uploadTagihanId,keterangan:nama+' '+catatan});
+  closeUpload();
+  showToast('Konfirmasi pembayaran terkirim! Admin akan segera memverifikasi ✓','success');
+  loadTagihan();
+}
+
+// ══ RESCHEDULE ══
+async function loadReschedule(){
+  const [rJ,rR,rB,rG,rM]=await Promise.all([api({action:'get_jadwal'}),api({action:'get_reschedule'}),api({action:'get_blokir'}),api({action:'get_guru'}),api({action:'get_murid'})]);
+  allJadwal=(rJ.data||[]).filter(j=>j.murid_id===muridId&&j.aktif!==false);
+  allReschedule=(rR.data||[]).filter(r=>r.murid_id===muridId).reverse();
+  allBlokir=rB.data||[];
+  allGuru=rG.data||[];
+  allMurid=rM.data||[];
+  muridData=allMurid.find(m=>m.id===muridId)||null;
+  guruData=muridData?allGuru.find(g=>g.id===muridData.guru_id)||null:null;
+
+  // Populate jadwal dropdown
+  const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const sel=document.getElementById('resSesiAsli');
+  sel.innerHTML='<option value="">— Pilih jadwal —</option>'+allJadwal.map(j=>`<option value="${j.id}||${j.hari}||${j.waktu_mulai}||${j.waktu_selesai}">${j.hari} ${j.waktu_mulai}–${j.waktu_selesai} (${fmtKelas(j.kelas)})</option>`).join('');
+  renderResRiwayat();
+  resWeekOffset=0;
+}
+function onSesiChange(){
+  const val=document.getElementById('resSesiAsli').value;
+  if(!val){ document.getElementById('cekJadwalGuru').style.display='none'; return; }
+  document.getElementById('cekJadwalGuru').style.display='block';
+  selectedSlot=null;
+  document.getElementById('selectedSlotPreview').style.display='none';
+  renderFreeSlots();
+}
+function changeResWeek(d){ resWeekOffset+=d; renderFreeSlots(); }
+function renderFreeSlots(){
+  const days=getResWeekDates();
+  const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const today=new Date(); today.setHours(0,0,0,0);
+  const fmt=d=>d.toISOString().slice(0,10);
+  const guruId=muridData?.guru_id||'';
+  const guruJadwal=JSON.parse(localStorage.getItem('cms_jadwal')||'[]').filter(j=>j.guru_id===guruId&&j.aktif!==false);
+  const guruBlokir=allBlokir.filter(b=>b.guru_id===guruId||b.guru_id==='all');
+
+  document.getElementById('resWeekLabel').textContent=`${days[0].toLocaleDateString('id-ID',{day:'numeric',month:'short'})} – ${days[6].toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}`;
+
+  let html='';
+  days.forEach((d,i)=>{
+    const tgl=fmt(d);
+    const hari=HARI[i];
+    const isPast=d<today;
+    if(isPast) return;
+    const guruSlotsHari=guruJadwal.filter(j=>j.hari===hari);
+    const isBlokir=guruBlokir.some(b=>b.tgl===tgl);
+    if(isBlokir){
+      html+=`<div class="free-slot blocked"><div><div style="font-size:12px;font-weight:600;color:var(--red-med);">🔒 ${hari}, ${d.getDate()} ${d.toLocaleDateString('id-ID',{month:'short'})}</div><div style="font-size:11px;color:var(--muted);">Diblokir</div></div></div>`;
+      return;
+    }
+    if(guruSlotsHari.length===0){
+      html+=`<div style="padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;margin-bottom:7px;">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);">${hari}, ${d.getDate()} ${d.toLocaleDateString('id-ID',{month:'short'})}</div>
+        <div style="font-size:11px;color:var(--muted);">Guru tidak ada jadwal</div>
+      </div>`;
+      return;
+    }
+    guruSlotsHari.forEach(j=>{
+      const isMySlot=j.murid_id===muridId;
+      html+=`<div class="free-slot" onclick="pilihSlot('${tgl}','${j.waktu_mulai}','${j.waktu_selesai}','${hari}')">
+        <div>
+          <div class="free-slot-time">${hari}, ${d.getDate()} ${d.toLocaleDateString('id-ID',{month:'short'})}</div>
+          <div class="free-slot-info">⏰ ${j.waktu_mulai}–${j.waktu_selesai} ${isMySlot?'(Jadwal saya)':''}</div>
+        </div>
+        <button class="btn btn-primary btn-xs">Pilih</button>
+      </div>`;
+    });
+  });
+  document.getElementById('freeSlotList').innerHTML=html||'<div style="color:var(--muted);font-size:13px;">Tidak ada slot minggu ini</div>';
+}
+function getResWeekDates(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const monday=new Date(today);
+  monday.setDate(today.getDate()-(today.getDay()||7)+1+(resWeekOffset*7));
+  return Array.from({length:7},(_,i)=>{ const d=new Date(monday); d.setDate(monday.getDate()+i); return d; });
+}
+function pilihSlot(tgl,mulai,selesai,hari){
+  selectedSlot={tgl,mulai,selesai,hari};
+  document.getElementById('selectedSlotText').textContent=`${hari}, ${new Date(tgl).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})} pukul ${mulai}–${selesai}`;
+  document.getElementById('selectedSlotPreview').style.display='block';
+  showToast('Slot dipilih ✓','success');
+}
+async function ajukanReschedule(){
+  const sesiVal=document.getElementById('resSesiAsli').value;
+  const alasan=document.getElementById('resAlasan').value.trim();
+  if(!sesiVal){ showToast('Pilih jadwal yang ingin diganti','error'); return; }
+  if(!selectedSlot){ showToast('Pilih waktu alternatif dulu','error'); return; }
+
+  const [jadwalId,hari,waktuMulai,waktuSelesai]=sesiVal.split('||');
+
+  // Check 24h
+  const jadwal=allJadwal.find(j=>j.id===jadwalId);
+  if(jadwal){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+    const dayIdx=HARI.indexOf(jadwal.hari);
+    const nextLesson=new Date(today);
+    let diff=(dayIdx-(today.getDay()||7)+7)%7||7;
+    nextLesson.setDate(today.getDate()+diff);
+    const msUntil=nextLesson-new Date();
+    if(msUntil<24*60*60*1000){
+      showToast('⚠️ Kurang dari 24 jam sebelum les, tidak bisa mengajukan reschedule','error');
+      return;
+    }
+  }
+
+  await apiPost({
+    action:'save_reschedule',
+    murid_id:muridId,
+    guru_id:muridData?.guru_id||'',
+    jadwal_id:jadwalId,
+    tgl_asli:'(jadwal rutin '+hari+' '+waktuMulai+')',
+    waktu_asli:waktuMulai+'–'+waktuSelesai,
+    tgl_proposed:selectedSlot.tgl,
+    waktu_proposed:selectedSlot.mulai+'–'+selectedSlot.selesai,
+    alasan
+  });
+  showToast('Permintaan reschedule terkirim! Menunggu persetujuan guru ✓','success');
+  selectedSlot=null;
+  document.getElementById('selectedSlotPreview').style.display='none';
+  document.getElementById('resSesiAsli').value='';
+  document.getElementById('resAlasan').value='';
+  document.getElementById('cekJadwalGuru').style.display='none';
+  loadReschedule();
+}
+function renderResRiwayat(){
+  const el=document.getElementById('resRiwayat');
+  if(allReschedule.length===0){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">Belum ada riwayat reschedule</div>'; return; }
+  const statusMap={pending:'<span class="badge badge-orange">⏳ Menunggu</span>',accepted:'<span class="badge badge-green">✅ Diterima</span>',rejected:'<span class="badge badge-red">❌ Ditolak</span>'};
+  el.innerHTML=allReschedule.map(r=>`
+    <div style="padding:12px 14px;background:var(--paper);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:8px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px;font-weight:600;">Jadwal asli: ${r.tgl_asli||'—'} ${r.waktu_asli||''}</div>
+          <div style="font-size:12px;color:var(--muted);">Diajukan: ${fmtTgl(r.tgl_request)}</div>
+        </div>
+        ${statusMap[r.status]||''}
+      </div>
+      <div style="font-size:12px;color:var(--muted);">🔄 Usulan: ${r.tgl_proposed||'—'} ${r.waktu_proposed||''}</div>
+      ${r.alasan?`<div style="font-size:12px;color:var(--muted);">💬 ${r.alasan}</div>`:''}
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{ loadJadwal(); });
+</script>
+</body>
+</html>
